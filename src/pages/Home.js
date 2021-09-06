@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useHistory } from "react-router-dom"
+import { useHistory, Redirect } from "react-router-dom"
 import { io } from "socket.io-client"
 import { useUser } from "../context/UserProvider"
 import { useSocket } from "../context/SocketProvider"
