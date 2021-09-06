@@ -1,7 +1,7 @@
 import React from 'react'
 
 // TODO: will come back to this later 
-function SearchVideo() {
+const SearchVideo = () => {
     return (
         <div>
             <Form

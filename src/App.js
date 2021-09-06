@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import Home from './pages/Home.js'
 import Game from './pages/Game.js'
 import { RoomProvider } from './context/RoomProvider';
 
-function App() {
+const App = () => {
 
   return (
     <RoomProvider>
@@ -17,7 +17,6 @@ function App() {
             <Game />
           </Route>
         </Switch>
-
       </Router>
     </RoomProvider>
   );

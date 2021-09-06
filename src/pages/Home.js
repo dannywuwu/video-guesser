@@ -11,7 +11,7 @@ import { formatCountdown } from 'antd/lib/statistic/utils';
 
 const { Title } = Typography;
 
-function Home() {
+const Home = () => {
     const history = useHistory()
     const { room, setRoom } = useRoom().room
     const { name, setName } = useRoom().name
