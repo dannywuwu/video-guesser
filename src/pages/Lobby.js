@@ -28,9 +28,9 @@ const classes = {
   },
 };
 
-const Game = () => {
-  const { room } = useRoom().room;
-  const { name } = useRoom().name;
+const Lobby = () => {
+  const { room } = useUser().room;
+  const { name } = useUser().name;
 
   const [users, setUsers] = useState([name]);
   const [id, setId] = useState();
@@ -140,4 +140,4 @@ const Game = () => {
   );
 };
 
-export default Game;
+export default Lobby;
