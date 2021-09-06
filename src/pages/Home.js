@@ -20,7 +20,7 @@ const Home = () => {
   const [isJoin, setIsJoin] = useState(false); // joining or creating?
 
   useEffect(() => {
-    console.log(user, socket.id);
+    // console.log(user, socket.id);
   }, []);
 
   const showCreate = () => {
