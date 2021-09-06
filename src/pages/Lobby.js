@@ -63,19 +63,6 @@ const Lobby = () => {
   //   })
   // }, [users])
 
-  useEffect(() => {
-    if (search != "") {
-      fetch(`https://song-searcher-backend-thing.weelam.repl.co/get/${search}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setQuery(data);
-          setSubmitted(true);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [search]);
-
   return (
     <div>
       {/* {users} */}
