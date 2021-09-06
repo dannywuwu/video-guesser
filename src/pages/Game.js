@@ -39,9 +39,7 @@ function Game() {
   const handleFinishFailed = (e) => {
     console.log("Finished Failed")
   }
-
-
-
+  
   useEffect(() => {
     const socket = io("https://song-searcher-backend-thing.weelam.repl.co")
 
@@ -50,13 +48,8 @@ function Game() {
       setId(socket.id)
     })
 
-    socket.emit("join-room", name, room, (users) => {
-      console.log(users)
-    })
-
-    socket.emit("display-users", (users) => {
-      console.log(users)
-      // setUsers(prev => [...prev, ...users])
+    socket.emit("join-room", name, room, (user) => {
+      console.log(user)
     })
 
     return () => {
@@ -64,6 +57,14 @@ function Game() {
       socket.off()
     }
   }, [])
+
+  // useEffect(() => {
+  //   socket.on("display-users", (payload) => {
+  //     console.log("Users: " + payload)
+  //     // setUsers(prev => [...prev, ...users])
+  //   })
+  // }, [users]) 
+
 
 
   useEffect(() => {
@@ -83,7 +84,7 @@ function Game() {
 
   return (
     <div>
-      {users}
+      {/* {users} */}
       {
         // allow user to search if it's there turn
         isChooser && (

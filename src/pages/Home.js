@@ -55,7 +55,7 @@ function Home() {
                     <Button form="myForm" key="submit" htmlType="submit">
                         Submit
                     </Button>
-                    ]}
+                ]}
             >
                 {isJoin
                     ? (
