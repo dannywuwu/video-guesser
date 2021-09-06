@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { io } from "socket.io-client";
-import { useRoom } from "../context/RoomProvider";
+import { useUser } from "../context/UserProvider";
+import { useSocket } from "../context/SocketProvider";
 // ant design
 import "antd/dist/antd.css";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -12,11 +13,15 @@ const { Title } = Typography;
 
 const Home = () => {
   const history = useHistory();
-  const { room, setRoom } = useRoom().room;
-  const { name, setName } = useRoom().name;
+  const socket = useSocket();
+  const { user, setUser } = useUser();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isJoin, setIsJoin] = useState(false); // joining or creating?
+
+  useEffect(() => {
+    console.log(user, socket.id);
+  }, []);
 
   const showCreate = () => {
     setIsModalVisible(true);
@@ -33,14 +38,14 @@ const Home = () => {
     // redirect to Game page, and then connect them to the socket
     if (isJoin) console.log("these nuts");
     else {
-      setRoom(value.user.room);
-      setName(value.user.name);
+      setUser(socket.id, value.user.name, value.user.room);
       history.push("/game");
     }
   };
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
   return (
     <Space direction="vertical" align="center" style={{ height: "100vh" }}>
       <Title level={2}>Game Title</Title>

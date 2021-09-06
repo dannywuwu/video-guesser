@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
-import { useRoom } from "../context/RoomProvider.js";
+import { useUser } from "../context/UserProvider.js";
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import {
   Form,
@@ -50,23 +50,11 @@ const Game = () => {
     console.log("Finished Failed");
   };
 
-  useEffect(() => {
-    const socket = io("https://song-searcher-backend-thing.weelam.repl.co");
-
-    socket.on("connect", () => {
-      console.log(socket.id);
-      setId(socket.id);
-    });
-
-    socket.emit("join-room", name, room, (user) => {
-      console.log(user);
-    });
-
-    return () => {
-      socket.disconnect();
-      socket.off();
-    };
-  }, []);
+  // useEffect(() => {
+  //   socket.on("display-users", users => {
+  //     console.log(users)
+  //   })
+  // }, [users])
 
   // useEffect(() => {
   //   socket.on("display-users", (payload) => {

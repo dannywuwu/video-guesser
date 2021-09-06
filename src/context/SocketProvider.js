@@ -4,30 +4,32 @@ import io from 'socket.io-client'
 const SocketContext = React.createContext()
 
 export function useSocket() {
-    return useContext(SocketContext)
+  return useContext(SocketContext)
 }
 export function SocketProvider({ children }) {
-    const [socket, setSocket] = useState()
+  const [socket, setSocket] = useState()
 
-    useEffect(() => {
-        const newSocket = io("https://song-searcher-backend-thing.weelam.repl.co")
-        newSocket.on('connect', () => {
-            console.log(`you have connected with id: ${newSocket.id}`)
-        })
-
-        setSocket(newSocket)
-
-
-        return () => {
-            newSocket.close()
-        }
+  useEffect(() => {
+    const temp_socket = io("https://song-searcher-backend-thing.weelam.repl.co")
+    temp_socket.on('connect', () => {
+      console.log(temp_socket.id) 
     }, [])
+    setSocket(temp_socket)
+    // temp_socket.emit("join-room", name, room, (user) => {
+    //   console.log(user)
+    // })
 
-    return (
-        <SocketContext.Provider value={socket}>
-            {children}
-        </SocketContext.Provider>
-    )
+
+    return () => {
+      socket.disconnect()
+      socket.off()
+    }
+  }, [])
+  return (
+    <SocketContext.Provider value={socket}>
+      {children}
+    </SocketContext.Provider>
+  )
 }
 
 
