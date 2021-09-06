@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import { useUser } from "../context/UserProvider.js";
+import React, { useState, useEffect } from "react"
+import { io } from "socket.io-client"
+import { useUser } from "../context/UserProvider"
+import { useSocket } from "../context/SocketProvider"
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import {
   Form,
@@ -13,10 +14,10 @@ import {
   Col,
   Box,
   Space,
-} from "antd";
-import "antd/dist/antd.css";
+} from "antd"
+import "antd/dist/antd.css"
 
-const { Meta } = Card;
+const { Meta } = Card
 
 const classes = {
   gridStyle: {
@@ -26,46 +27,53 @@ const classes = {
     marginLeft: "auto",
     marginRight: "auto",
   },
-};
+}
 
 const Lobby = () => {
-  const { room } = useUser().room;
-  const { name } = useUser().name;
+  const socket = useSocket()
+  const { user, setUser } = useUser()
+  const [users, setUsers] = useState([user.id])
 
-  const [users, setUsers] = useState([name]);
-  const [id, setId] = useState();
-  const [search, setSearch] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [query, setQuery] = useState({});
 
-  const [isChooser, setIsChooser] = useState(true);
-  const [isConfigured, setIsConfigured] = useState(false);
-  const [configVisible, setConfigVisible] = useState(true);
+  const [id, setId] = useState()
+  const [search, setSearch] = useState("")
+  const [submitted, setSubmitted] = useState(false)
+  const [query, setQuery] = useState({})
+
+  const [isChooser, setIsChooser] = useState(true)
+  const [isConfigured, setIsConfigured] = useState(false)
+  const [configVisible, setConfigVisible] = useState(true)
 
   const handleFinish = (values) => {
-    console.log(values.search);
-    setSearch(values.search);
-  };
+    console.log(values.search)
+    setSearch(values.search)
+  }
   const handleFinishFailed = (e) => {
-    console.log("Finished Failed");
-  };
+    console.log("Finished Failed")
+  }
 
-  // useEffect(() => {
-  //   socket.on("display-users", users => {
-  //     console.log(users)
-  //   })
-  // }, [users])
+ 
+  useEffect(() => {
+    socket.on("display-users", users => {
+      setUsers(users)
+    })
 
-  // useEffect(() => {
-  //   socket.on("display-users", (payload) => {
-  //     console.log("Users: " + payload)
-  //     // setUsers(prev => [...prev, ...users])
-  //   })
-  // }, [users])
+  }, [users])
+
+  useEffect(() => {
+    console.log(socket.id + " mounted")
+    socket.emit("join-room", user.name, user.room, (user) => {
+      console.log(user)
+    })
+    return () => {
+      socket.emit("leave-room", user.room, (users) => {
+        console.log(socket.id," unmounted ", users)
+      })
+    }
+  }, [])
 
   return (
     <div>
-      {/* {users} */}
       {
         // allow user to search if it's there turn
         isChooser && (
@@ -89,42 +97,23 @@ const Lobby = () => {
                 <Input placeholder="Search..." />
               </Form.Item>
             </Form>
-            <Row justify="center">
-              {submitted &&
-                query.items.map((item, index) => {
-                  return (
-                    <Col span={12} flex="auto" className="gutter-row">
-                      <div>
-                        <Card
-                          key={index}
-                          hover="true"
-                          title={item.title}
-                          style={classes.gridStyle}
-                          cover={
-                            <img
-                              alt="example"
-                              src={item.url}
-                              style={{ height: "100%" }}
-                            />
-                          }
-                        >
-                          <Meta
-                            avatar={
-                              <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                            }
-                            title={item.channelTitle}
-                          />
-                        </Card>
-                      </div>
-                    </Col>
-                  );
-                })}
-            </Row>
+
           </>
         )
       }
-    </div>
-  );
-};
+      <Row justify="center">
+        {
+          users.map((user, index) => {
+            return (
+              <Col span={2} flex="auto" className="gutter-row">
+                  {user.name}
 
-export default Lobby;
+              </Col>
+            )
+          })}
+      </Row>
+    </div>
+  )
+}
+
+export default Lobby
