@@ -58,12 +58,14 @@ const Lobby = () => {
       setUsers(users)
     })
 
+    return () => {
+      console.log("unmount set users")
+    }
   }, [users])
 
   useEffect(() => {
-    console.log(socket.id + " mounted")
     socket.emit("join-room", user.name, user.room, (user) => {
-      console.log(user)
+      console.log(user.name + " has joined room " + user.room)
     })
     return () => {
       socket.emit("leave-room", user.room, (users) => {
