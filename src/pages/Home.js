@@ -1,50 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { io } from "socket.io-client";
-import { useUser } from "../context/UserProvider";
-import { useSocket } from "../context/SocketProvider";
+import React, { useState, useEffect } from "react"
+import { useHistory } from "react-router-dom"
+import { io } from "socket.io-client"
+import { useUser } from "../context/UserProvider"
+import { useSocket } from "../context/SocketProvider"
+import userFactory from "../hooks/userFactory"
 // ant design
-import "antd/dist/antd.css";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { Button, Space, Typography, Modal, Form, Input } from "antd";
-import { formatCountdown } from "antd/lib/statistic/utils";
+import "antd/dist/antd.css"
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
+import { Button, Space, Typography, Modal, Form, Input } from "antd"
+import { formatCountdown } from "antd/lib/statistic/utils"
 
-const { Title } = Typography;
+const { Title } = Typography
 
 const Home = () => {
-  const history = useHistory();
-  const socket = useSocket();
-  const { user, setUser } = useUser();
+  const history = useHistory()
+  const socket = useSocket()
+  const { user, setUser } = useUser()
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isJoin, setIsJoin] = useState(false); // joining or creating?
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isJoin, setIsJoin] = useState(false) // joining or creating?
 
   useEffect(() => {
-    // console.log(user, socket.id);
-  }, []);
+    // console.log(user, socket.id)
+  }, [])
 
   const showCreate = () => {
-    setIsModalVisible(true);
-    setIsJoin(false);
-  };
+    setIsModalVisible(true)
+    setIsJoin(false)
+  }
 
   const showJoin = () => {
-    setIsModalVisible(true);
-    setIsJoin(true);
-  };
+    setIsModalVisible(true)
+    setIsJoin(true)
+  }
 
   const onFinish = (value) => {
-    setIsModalVisible(false);
-    // redirect to Game page, and then connect them to the socket
-    if (isJoin) console.log("these nuts");
+    setIsModalVisible(false)
+    // redirect to Game page
+    if (isJoin) console.log("these nuts")
     else {
-      setUser(socket.id, value.user.name, value.user.room);
-      history.push("/game");
+      setUser(userFactory(socket.id, value.user.name, value.user.room))
+      history.push("/lobby")
     }
-  };
+  }
   const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+    setIsModalVisible(false)
+  }
 
   return (
     <Space direction="vertical" align="center" style={{ height: "100vh" }}>
@@ -124,7 +125,7 @@ const Home = () => {
         )}
       </Modal>
     </Space>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

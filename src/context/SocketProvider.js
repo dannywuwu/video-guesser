@@ -13,16 +13,17 @@ export function SocketProvider({ children }) {
     const temp_socket = io("https://song-searcher-backend-thing.weelam.repl.co")
     temp_socket.on('connect', () => {
       console.log(temp_socket.id) 
+      setSocket(temp_socket)
     }, [])
-    setSocket(temp_socket)
+    
     // temp_socket.emit("join-room", name, room, (user) => {
     //   console.log(user)
     // })
 
 
     return () => {
-      socket.disconnect()
-      socket.off()
+      temp_socket.disconnect()
+      temp_socket.off()
     }
   }, [])
   return (

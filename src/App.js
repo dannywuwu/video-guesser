@@ -14,7 +14,10 @@ const App = () => {
             <Route exact path="/">
               <Home />
             </Route>
-            <Route path="/game">
+            {/* <Route path="/game">
+              <Lobby />
+            </Route> */}
+            <Route path="/lobby">
               <Lobby />
             </Route>
           </Switch>
