@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { io } from "socket.io-client"
 import { useUser } from "../context/UserProvider"
 import { useSocket } from "../context/SocketProvider"
+import Countdown from "react-countdown";
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import {
   Form,
@@ -17,6 +18,7 @@ import {
 } from "antd"
 import "antd/dist/antd.css"
 import { Typography } from 'antd';
+import { useHistory } from "react-router";
 
 const { Title, Text } = Typography;
 
@@ -33,11 +35,14 @@ const classes = {
 }
 
 const Lobby = () => {
+  const history = useHistory()
+
   const socket = useSocket()
   const { user, setUser } = useUser()
   const [users, setUsers] = useState([user.id])
   const [readyUsers, setReadyUsers] = useState([])
   const [isReady, setIsReady] = useState(false)
+  const [countDown, setCountDown] = useState(false)
 
   useEffect(() => {
     socket.on("display-users", users => {
@@ -54,10 +59,12 @@ const Lobby = () => {
   }, [isReady])
 
   useEffect(() => {
-    socket.on("get-ready-players", readyUsers => {
-      console.log(readyUsers)
+    socket.once("get-ready-players", readyUsers => {
+      console.log(readyUsers) 
       setReadyUsers(readyUsers)
     })
+    if (readyUsers.length === users.length) {setCountDown(true)}
+    else {setCountDown(false)}
   }, [readyUsers])
 
   useEffect(() => {
@@ -78,8 +85,8 @@ const Lobby = () => {
         {
           users.map((user, index) => {
             let type;
-            if (readyUsers.some(v => v.id === user.id)) {type = "success"}
-            else {type = "default"}
+            if (readyUsers.some(v => v.id === user.id)) { type = "success" }
+            else { type = "default" }
             console.log(type)
             return (
               <Col span={2} flex="auto" className="gutter-row">
@@ -91,7 +98,13 @@ const Lobby = () => {
           })}
       </Row>
       {isReady ? <Button onClick={() => setIsReady(prev => !prev)}> Unready </Button > : <Button onClick={() => setIsReady(prev => !prev)}> Ready! </Button>}
-
+      {countDown &&
+        <Countdown
+          date={Date.now() + 5000}
+          onComplete={() => history.push("/game")}
+          renderer={({ seconds }) => <div>{seconds}</div>}
+        />
+      }
     </div>
   )
 }
