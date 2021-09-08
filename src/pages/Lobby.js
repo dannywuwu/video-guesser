@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { io } from "socket.io-client"
 import { useUser } from "../context/UserProvider"
 import { useSocket } from "../context/SocketProvider"
+import Countdown from "react-countdown";
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import {
   Form,
@@ -16,6 +17,10 @@ import {
   Space,
 } from "antd"
 import "antd/dist/antd.css"
+import { Typography } from 'antd';
+import { useHistory } from "react-router";
+
+const { Title, Text } = Typography;
 
 const { Meta } = Card
 
@@ -30,29 +35,15 @@ const classes = {
 }
 
 const Lobby = () => {
+  const history = useHistory()
+
   const socket = useSocket()
   const { user, setUser } = useUser()
   const [users, setUsers] = useState([user.id])
+  const [readyUsers, setReadyUsers] = useState([])
+  const [isReady, setIsReady] = useState(false)
+  const [countDown, setCountDown] = useState(false)
 
-
-  const [id, setId] = useState()
-  const [search, setSearch] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-  const [query, setQuery] = useState({})
-
-  const [isChooser, setIsChooser] = useState(true)
-  const [isConfigured, setIsConfigured] = useState(false)
-  const [configVisible, setConfigVisible] = useState(true)
-
-  const handleFinish = (values) => {
-    console.log(values.search)
-    setSearch(values.search)
-  }
-  const handleFinishFailed = (e) => {
-    console.log("Finished Failed")
-  }
-
- 
   useEffect(() => {
     socket.on("display-users", users => {
       setUsers(users)
@@ -64,56 +55,56 @@ const Lobby = () => {
   }, [users])
 
   useEffect(() => {
+    socket.emit("ready-player", isReady)
+  }, [isReady])
+
+  useEffect(() => {
+    socket.once("get-ready-players", readyUsers => {
+      console.log(readyUsers) 
+      setReadyUsers(readyUsers)
+    })
+    if (readyUsers.length === users.length) {setCountDown(true)}
+    else {setCountDown(false)}
+  }, [readyUsers])
+
+  useEffect(() => {
     socket.emit("join-room", user.name, user.room, (user) => {
       console.log(user.name + " has joined room " + user.room)
     })
     return () => {
       socket.emit("leave-room", user.room, (users) => {
-        console.log(socket.id," unmounted ", users)
+        console.log(socket.id, " unmounted ", users)
       })
     }
   }, [])
 
   return (
     <div>
-      {
-        // allow user to search if it's there turn
-        isChooser && (
-          <>
-            <Form
-              name="basic"
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              initialValues={{ remember: true }}
-              onFinish={handleFinish}
-              onFinishFailed={handleFinishFailed}
-              // onFieldsChange={handleFieldsChange}
-              autoComplete="off"
-            >
-              <Form.Item
-                name="search"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                ]}
-              >
-                <Input placeholder="Search..." />
-              </Form.Item>
-            </Form>
-
-          </>
-        )
-      }
+      <Title level={3}>{user.room}</Title>
       <Row justify="center">
         {
           users.map((user, index) => {
+            let type;
+            if (readyUsers.some(v => v.id === user.id)) { type = "success" }
+            else { type = "default" }
+            console.log(type)
             return (
               <Col span={2} flex="auto" className="gutter-row">
-                  {user.name}
+
+                <Text type={type}>{user.name} </Text>
 
               </Col>
             )
           })}
       </Row>
+      {isReady ? <Button onClick={() => setIsReady(prev => !prev)}> Unready </Button > : <Button onClick={() => setIsReady(prev => !prev)}> Ready! </Button>}
+      {countDown &&
+        <Countdown
+          date={Date.now() + 5000}
+          onComplete={() => history.push("/game")}
+          renderer={({ seconds }) => <div>{seconds}</div>}
+        />
+      }
     </div>
   )
 }

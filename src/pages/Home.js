@@ -24,16 +24,6 @@ const Home = () => {
     // console.log(user, socket.id)
   }, [])
 
-  const showCreate = () => {
-    setIsModalVisible(true)
-    setIsJoin(false)
-  }
-
-  const showJoin = () => {
-    setIsModalVisible(true)
-    setIsJoin(true)
-  }
-
   const onFinish = (value) => {
     setIsModalVisible(false)
     // redirect to Game page
@@ -50,80 +40,37 @@ const Home = () => {
   return (
     <Space direction="vertical" align="center" style={{ height: "100vh" }}>
       <Title level={2}>Game Title</Title>
-      <Button type="primary" shape="round" size="large" onClick={showJoin}>
-        {" "}
-        Join Game{" "}
-      </Button>
-      <Button type="primary" shape="round" size="large" onClick={showCreate}>
-        {" "}
-        Create Game{" "}
-      </Button>
-
-      <Modal
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button form="myForm" key="submit" htmlType="submit">
-            Submit
-          </Button>,
-        ]}
+      <Form
+        id="myForm"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        // onFinishFailed={handleFinishFailed}
+        autoComplete="off"
       >
-        {isJoin ? (
-          <Form
-            id="myForm"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            // onFinishFailed={handleFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              name={["user", "name"]}
-              rules={[
-                { required: true, message: "Please input your display name!" },
-              ]}
-            >
-              <Input placeholder="Display name" />
-            </Form.Item>
-            <Form.Item
-              name={["user", "room"]}
-              rules={[
-                { required: true, message: "Please input the room name!" },
-              ]}
-            >
-              <Input placeholder="Room name" />
-            </Form.Item>
-          </Form>
-        ) : (
-          <Form
-            id="myForm"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            // onFinishFailed={handleFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              name={["user", "name"]}
-              rules={[
-                { required: true, message: "Please input your display name!" },
-              ]}
-            >
-              <Input placeholder="Display name" />
-            </Form.Item>
-            <Form.Item
-              name={["user", "room"]}
-              rules={[
-                { required: true, message: "Please input the room name!" },
-              ]}
-            >
-              <Input placeholder="Room name" />
-            </Form.Item>
-          </Form>
-        )}
-      </Modal>
+        <Form.Item
+          name={["user", "name"]}
+          rules={[
+            { required: true, message: "Please input your display name!" },
+          ]}
+        >
+          <Input placeholder="Display name" />
+        </Form.Item>
+        <Form.Item
+          name={["user", "room"]}
+          rules={[
+            { required: true, message: "Please input the room name!" },
+          ]}
+        >
+          <Input placeholder="Room name" />
+        </Form.Item>
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </Space>
   )
 }
