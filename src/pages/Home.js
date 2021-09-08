@@ -7,7 +7,7 @@ import userFactory from "../hooks/userFactory"
 // ant design
 import "antd/dist/antd.css"
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
-import { Button, Space, Typography, Modal, Form, Input } from "antd"
+import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd"
 import { formatCountdown } from "antd/lib/statistic/utils"
 
 const { Title } = Typography
@@ -38,40 +38,49 @@ const Home = () => {
   }
 
   return (
-    <Space direction="vertical" align="center" style={{ height: "100vh" }}>
-      <Title level={2}>Game Title</Title>
-      <Form
-        id="myForm"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        // onFinishFailed={handleFinishFailed}
-        autoComplete="off"
-      >
-        <Form.Item
-          name={["user", "name"]}
-          rules={[
-            { required: true, message: "Please input your display name!" },
-          ]}
+    <Row justify="center" align="middle" style={{ minHeight: '100vh' }}>
+      <Col xs={8} md={4}>
+        <Form
+          id="myForm"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          // onFinishFailed={handleFinishFailed}
+          autoComplete="off"
         >
-          <Input placeholder="Display name" />
-        </Form.Item>
-        <Form.Item
-          name={["user", "room"]}
-          rules={[
-            { required: true, message: "Please input the room name!" },
-          ]}
-        >
-          <Input placeholder="Room name" />
-        </Form.Item>
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </Space>
+          <Title style={{ textAlign: "center", marginBottom: "15px" }} level={2}>Game Title</Title>
+          <Form.Item
+            name={["user", "name"]}
+            rules={[
+              { required: true, message: "Please input your display name!" },
+            ]}
+            noStyle={true}
+
+          >
+            <Input size="large" placeholder="Display name" style={{ margin: "10px 0px" }} />
+          </Form.Item>
+
+          <Form.Item
+            name={["user", "room"]}
+            rules={[
+              { required: true, message: "Please input the room name!" },
+            ]}
+            noStyle={true}
+          >
+            <Input size="large" placeholder="Room name" style={{ margin: "10px 0px" }} />
+          </Form.Item>
+
+          <Form.Item noStyle={true}>
+            <Button block size="large" type="primary" htmlType="submit" style={{ margin: "10px 0px" }}>
+              Play!
+            </Button>
+          </Form.Item>
+
+
+        </Form>
+      </Col>
+    </Row>
   )
 }
 
