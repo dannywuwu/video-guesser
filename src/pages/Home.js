@@ -5,8 +5,7 @@ import { useUser } from "../context/UserProvider"
 import { useSocket } from "../context/SocketProvider"
 import userFactory from "../hooks/userFactory"
 // ant design
-// import "antd/dist/antd.css"
-import '~antd/dist/antd.less';
+import "../styles/antd.css"
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
 import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd"
 import { formatCountdown } from "antd/lib/statistic/utils"
@@ -74,7 +73,7 @@ const Home = () => {
           </Form.Item>
 
           <Form.Item noStyle={true}>
-            <Button block size="large" type="primary" htmlType="submit" style={{ margin: "10px 0px", backgroundColor: "#a0d911" }}>
+            <Button block size="large" type="primary" htmlType="submit" style={{ margin: "10px 0px"}}>
               Play!
             </Button>
           </Form.Item>
