@@ -15,12 +15,13 @@ import {
   Col,
   Box,
   Space,
+  Typography,
+  Layout
 } from "antd"
-import "antd/dist/antd.css"
-import { Typography } from 'antd';
 import { useHistory } from "react-router";
 
 const { Title, Text } = Typography;
+const { Header, Footer, Sider, Content } = Layout;
 
 const { Meta } = Card
 
@@ -60,11 +61,12 @@ const Lobby = () => {
 
   useEffect(() => {
     socket.once("get-ready-players", readyUsers => {
-      console.log(readyUsers) 
+      console.log(readyUsers)
       setReadyUsers(readyUsers)
     })
-    if (readyUsers.length === users.length) {setCountDown(true)}
-    else {setCountDown(false)}
+    if (readyUsers.length === users.length) { setCountDown(true) }
+    else { setCountDown(false) }
+    console.log(readyUsers)
   }, [readyUsers])
 
   useEffect(() => {
@@ -78,33 +80,49 @@ const Lobby = () => {
     }
   }, [])
 
+  let readyText
+  if (isReady) { readyText = "Unready" }
+  else { readyText = "Ready!" }
   return (
     <div>
-      <Title level={3}>{user.room}</Title>
-      <Row justify="center">
-        {
-          users.map((user, index) => {
-            let type;
-            if (readyUsers.some(v => v.id === user.id)) { type = "success" }
-            else { type = "default" }
-            console.log(type)
-            return (
-              <Col span={2} flex="auto" className="gutter-row">
+      <Row align="middle" justify="center" style={{ margin: "0 auto", width: "40%", height: "100vh" }}>
+        <Col xs={24} className="gutter-row">
 
-                <Text type={type}>{user.name} </Text>
+          <Title style={{ textAlign: "center", marginBottom: "40px" }} level={3}>{user.room}</Title>
+          {
+            users.map((user, index) => {
+              let type;
+              let boxShadow;
+              if (readyUsers.some(v => v.id === user.id)) { 
+                type = "success" 
+                boxShadow = "0 0 5px #1890ff"
+              }
+              else { 
+                type = "default" 
+                boxShadow = ""
+              }
+              console.log(type)
+              return (
+                <Card size="small" style={{ marginTop: 0, boxShadow: `${boxShadow}`, backgroundColor: "#e6f7ff" }}>
+                  <Text >{user.name} </Text>
+                </Card>
 
-              </Col>
-            )
-          })}
+              )
+            })}
+        </Col>
+
+        {countDown ?
+          <Countdown
+            date={Date.now() + 5000}
+            onComplete={() => history.push("/game")}
+            renderer={({ seconds }) => <Button size="large" type="primary" style={{ marginTop: 16 }}>{seconds}</Button>}
+          />
+          :
+          <Button size="large" type="primary" style={{ marginTop: 16 }} onClick={() => setIsReady(prev => !prev)}> {readyText} </Button >
+        }
+
       </Row>
-      {isReady ? <Button onClick={() => setIsReady(prev => !prev)}> Unready </Button > : <Button onClick={() => setIsReady(prev => !prev)}> Ready! </Button>}
-      {countDown &&
-        <Countdown
-          date={Date.now() + 5000}
-          onComplete={() => history.push("/game")}
-          renderer={({ seconds }) => <div>{seconds}</div>}
-        />
-      }
+
     </div>
   )
 }
