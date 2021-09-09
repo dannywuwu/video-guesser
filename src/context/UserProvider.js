@@ -10,10 +10,15 @@ export function useUser() {
 
 export function UserProvider({ children }) {
 
-  let thing = userFactory(1, "william", "room1")
-  const [user, setUser] = useState(thing)
+  let defaultUser = userFactory(0, "default-user", "default-room", "", "", false)
+  const [user, setUser] = useState(defaultUser)
+  const [users, setUsers] = useState([])
+  
+  useEffect(() => {
+    setUsers([user.id])
+  }, [])
 
-  let value = { user, setUser }
+  let value = { user, setUser, users, setUsers }
 
   return (
     <UserContext.Provider value={value}>

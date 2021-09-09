@@ -40,8 +40,7 @@ const Lobby = () => {
   const history = useHistory()
 
   const socket = useSocket()
-  const { user, setUser } = useUser()
-  const [users, setUsers] = useState([user.id])
+  const { user, setUser, users, setUsers } = useUser()
   const [readyUsers, setReadyUsers] = useState([])
   const [isReady, setIsReady] = useState(false)
   const [countDown, setCountDown] = useState(false)
@@ -65,20 +64,21 @@ const Lobby = () => {
       console.log(readyUsers)
       setReadyUsers(readyUsers)
     })
-    if (readyUsers.length === users.length) { setCountDown(true) }
+    if (readyUsers.length === users.length && users.length !== 0) { setCountDown(true) }
     else { setCountDown(false) }
-    console.log(readyUsers)
   }, [readyUsers])
 
   useEffect(() => {
     socket.emit("join-room", user.name, user.room, (user) => {
       console.log(user.name + " has joined room " + user.room)
     })
+    console.log(users)
     return () => {
       socket.emit("leave-room", user.room, (users) => {
         console.log(socket.id, " unmounted ", users)
       })
     }
+    
   }, [])
 
   let readyText
