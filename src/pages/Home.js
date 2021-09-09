@@ -5,9 +5,9 @@ import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import userFactory from "../hooks/userFactory";
 // ant design
-import "antd/dist/antd.css";
+import "../styles/antd.css";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { Button, Space, Typography, Modal, Form, Input } from "antd";
+import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd";
 import { formatCountdown } from "antd/lib/statistic/utils";
 
 const { Title } = Typography;
@@ -24,16 +24,6 @@ const Home = () => {
     // console.log(user, socket.id)
   }, []);
 
-  const showCreate = () => {
-    setIsModalVisible(true);
-    setIsJoin(false);
-  };
-
-  const showJoin = () => {
-    setIsModalVisible(true);
-    setIsJoin(true);
-  };
-
   const onFinish = (value) => {
     setIsModalVisible(false);
     // redirect to Game page
@@ -48,83 +38,64 @@ const Home = () => {
   };
 
   return (
-    <Space direction="vertical" align="center" style={{ height: "100vh" }}>
-      <Title level={2}>Game Title</Title>
-      <Button type="primary" shape="round" size="large" onClick={showJoin}>
-        {" "}
-        Join Game{" "}
-      </Button>
-      <Button type="primary" shape="round" size="large" onClick={showCreate}>
-        {" "}
-        Create Game{" "}
-      </Button>
+    // TODO: Add header(set theme) and footer(github repo)
+    <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
+      <Col xs={8} md={4}>
+        <Form
+          id="myForm"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          // onFinishFailed={handleFinishFailed}
+          autoComplete="off"
+        >
+          <Title
+            style={{ textAlign: "center", marginBottom: "15px" }}
+            level={2}
+          >
+            Game Title
+          </Title>
+          <Form.Item
+            name={["user", "name"]}
+            rules={[
+              { required: true, message: "Please input your display name!" },
+            ]}
+            noStyle={true}
+          >
+            <Input
+              size="large"
+              placeholder="Display name"
+              style={{ margin: "10px 0px" }}
+            />
+          </Form.Item>
 
-      <Modal
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button form="myForm" key="submit" htmlType="submit">
-            Submit
-          </Button>,
-        ]}
-      >
-        {isJoin ? (
-          <Form
-            id="myForm"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            // onFinishFailed={handleFinishFailed}
-            autoComplete="off"
+          <Form.Item
+            name={["user", "room"]}
+            rules={[{ required: true, message: "Please input the room name!" }]}
+            noStyle={true}
           >
-            <Form.Item
-              name={["user", "name"]}
-              rules={[
-                { required: true, message: "Please input your display name!" },
-              ]}
+            <Input
+              size="large"
+              placeholder="Room name"
+              style={{ margin: "10px 0px" }}
+            />
+          </Form.Item>
+
+          <Form.Item noStyle={true}>
+            <Button
+              block
+              size="large"
+              type="primary"
+              htmlType="submit"
+              style={{ margin: "10px 0px" }}
             >
-              <Input placeholder="Display name" />
-            </Form.Item>
-            <Form.Item
-              name={["user", "room"]}
-              rules={[
-                { required: true, message: "Please input the room name!" },
-              ]}
-            >
-              <Input placeholder="Room name" />
-            </Form.Item>
-          </Form>
-        ) : (
-          <Form
-            id="myForm"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            // onFinishFailed={handleFinishFailed}
-            autoComplete="off"
-          >
-            <Form.Item
-              name={["user", "name"]}
-              rules={[
-                { required: true, message: "Please input your display name!" },
-              ]}
-            >
-              <Input placeholder="Display name" />
-            </Form.Item>
-            <Form.Item
-              name={["user", "room"]}
-              rules={[
-                { required: true, message: "Please input the room name!" },
-              ]}
-            >
-              <Input placeholder="Room name" />
-            </Form.Item>
-          </Form>
-        )}
-      </Modal>
-    </Space>
+              Play!
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+    </Row>
   );
 };
 

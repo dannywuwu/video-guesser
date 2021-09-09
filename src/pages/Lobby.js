@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
+import Countdown from "react-countdown";
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import {
   Form,
@@ -14,8 +15,14 @@ import {
   Col,
   Box,
   Space,
+  Typography,
+  Layout,
 } from "antd";
-import "antd/dist/antd.css";
+import { useHistory } from "react-router";
+import "../styles/antd.css";
+
+const { Title, Text } = Typography;
+const { Header, Footer, Sider, Content } = Layout;
 
 const { Meta } = Card;
 
@@ -30,26 +37,14 @@ const classes = {
 };
 
 const Lobby = () => {
+  const history = useHistory();
+
   const socket = useSocket();
   const { user, setUser } = useUser();
   const [users, setUsers] = useState([user.id]);
-
-  const [id, setId] = useState();
-  const [search, setSearch] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [query, setQuery] = useState({});
-
-  const [isChooser, setIsChooser] = useState(true);
-  const [isConfigured, setIsConfigured] = useState(false);
-  const [configVisible, setConfigVisible] = useState(true);
-
-  const handleFinish = (values) => {
-    console.log(values.search);
-    setSearch(values.search);
-  };
-  const handleFinishFailed = (e) => {
-    console.log("Finished Failed");
-  };
+  const [readyUsers, setReadyUsers] = useState([]);
+  const [isReady, setIsReady] = useState(false);
+  const [countDown, setCountDown] = useState(false);
 
   useEffect(() => {
     socket.on("display-users", (users) => {
@@ -62,6 +57,23 @@ const Lobby = () => {
   }, [users]);
 
   useEffect(() => {
+    socket.emit("ready-player", isReady);
+  }, [isReady]);
+
+  useEffect(() => {
+    socket.once("get-ready-players", (readyUsers) => {
+      console.log(readyUsers);
+      setReadyUsers(readyUsers);
+    });
+    if (readyUsers.length === users.length) {
+      setCountDown(true);
+    } else {
+      setCountDown(false);
+    }
+    console.log(readyUsers);
+  }, [readyUsers]);
+
+  useEffect(() => {
     socket.emit("join-room", user.name, user.room, (user) => {
       console.log(user.name + " has joined room " + user.room);
     });
@@ -72,43 +84,77 @@ const Lobby = () => {
     };
   }, []);
 
+  let readyText;
+  if (isReady) {
+    readyText = "Unready";
+  } else {
+    readyText = "Ready!";
+  }
   return (
     <div>
-      {
-        // allow user to search if it's their turn
-        isChooser && (
-          <>
-            <Form
-              name="basic"
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              initialValues={{ remember: true }}
-              onFinish={handleFinish}
-              onFinishFailed={handleFinishFailed}
-              // onFieldsChange={handleFieldsChange}
-              autoComplete="off"
-            >
-              <Form.Item
-                name="search"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                ]}
+      <Row
+        align="middle"
+        justify="center"
+        style={{ margin: "0 auto", width: "40%", height: "100vh" }}
+      >
+        <Col xs={24} className="gutter-row">
+          <Title
+            style={{ textAlign: "center", marginBottom: "40px" }}
+            level={3}
+          >
+            {user.room}
+          </Title>
+          {users.map((user, index) => {
+            let type;
+            let boxShadow;
+            if (readyUsers.some((v) => v.id === user.id)) {
+              type = "success";
+              boxShadow = "#ffadd2";
+            } else {
+              type = "default";
+              boxShadow = "";
+            }
+            console.log(type);
+            return (
+              <Card
+                size="small"
+                type="primary"
+                style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
               >
-                <Input placeholder="Search..." />
-              </Form.Item>
-            </Form>
-          </>
-        )
-      }
-      <Row justify="center">
-        {users.map((user, index) => {
-          return (
-            <Col span={2} flex="auto" className="gutter-row">
-              {user.name}
-            </Col>
-          );
-        })}
+                <Text>{user.name} </Text>
+              </Card>
+            );
+          })}
+        </Col>
+
+        {countDown ? (
+          <Countdown
+            date={Date.now() + 5000}
+            onComplete={() => history.push("/game")}
+            renderer={({ seconds }) => (
+              <Button
+                size="large"
+                type="primary"
+                style={{ marginTop: 16 }}
+                onClick={() => setIsReady((prev) => !prev)}
+              >
+                {seconds}
+              </Button>
+            )}
+          />
+        ) : (
+          <Button
+            size="large"
+            type="primary"
+            style={{ marginTop: 16 }}
+            onClick={() => setIsReady((prev) => !prev)}
+          >
+            {" "}
+            {readyText}{" "}
+          </Button>
+        )}
       </Row>
+      {console.log(users.length, readyUsers.length)}
     </div>
   );
 };
