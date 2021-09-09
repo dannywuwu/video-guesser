@@ -10,14 +10,10 @@ export function useUser() {
 
 export function UserProvider({ children }) {
 
-  let defaultUser = userFactory(0, "default-user", "default-room", "", "", false)
+  let defaultUser = userFactory(0, 0, "default-user", "default-room", "", "", false)
   const [user, setUser] = useState(defaultUser)
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([user])
   
-  useEffect(() => {
-    setUsers([user.id])
-  }, [])
-
   let value = { user, setUser, users, setUsers }
 
   return (
