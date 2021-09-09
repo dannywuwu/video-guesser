@@ -29,12 +29,9 @@ const Home = () => {
     // redirect to Game page
     if (isJoin) console.log("these nuts");
     else {
-      setUser(userFactory(socket.id, value.user.name, value.user.room));
+      setUser(userFactory(socket.id, 0, value.user.name, value.user.room, "", "", false));
       history.push(`/lobby/${value.user.room}`);
     }
-  };
-  const handleCancel = () => {
-    setIsModalVisible(false);
   };
 
   return (

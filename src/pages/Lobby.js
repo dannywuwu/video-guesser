@@ -40,14 +40,13 @@ const Lobby = () => {
   const history = useHistory();
 
   const socket = useSocket();
-  const { user, setUser } = useUser();
-  const [users, setUsers] = useState([user.id]);
+  const { user, setUser, users, setUsers } = useUser()
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
 
   useEffect(() => {
-    socket.on("display-users", (users) => {
+    socket.once("display-users", (users) => {
       setUsers(users);
     });
 
@@ -61,26 +60,31 @@ const Lobby = () => {
   }, [isReady]);
 
   useEffect(() => {
-    socket.once("get-ready-players", (readyUsers) => {
-      console.log(readyUsers);
-      setReadyUsers(readyUsers);
+    socket.once("get-ready-players", (user, ready) => {
+      if (ready) {
+        setReadyUsers(prev => [...new Set([...prev, user])])
+      } else {
+        setReadyUsers(prev => prev.filter(v => v.id !== user.id))
+      }
     });
     if (readyUsers.length === users.length) {
-      setCountDown(true);
+      setCountDown(true)
     } else {
-      setCountDown(false);
+      setCountDown(false)
     }
-    console.log(readyUsers);
+
   }, [readyUsers]);
 
   useEffect(() => {
     socket.emit("join-room", user.name, user.room, (user) => {
       console.log(user.name + " has joined room " + user.room);
     });
+
     return () => {
       socket.emit("leave-room", user.room, (users) => {
         console.log(socket.id, " unmounted ", users);
       });
+      setReadyUsers(prev => prev.filter(v => v.id !== user.id))
     };
   }, []);
 
@@ -104,10 +108,10 @@ const Lobby = () => {
           >
             {user.room}
           </Title>
-          {users.map((user, index) => {
+          {Object.keys(users).length !== 0 && users.map((user, index) => {
             let type;
             let boxShadow;
-            if (readyUsers.some((v) => v.id === user.id)) {
+            if (readyUsers.some(v => v.id === user.id)) {
               type = "success";
               boxShadow = "#ffadd2";
             } else {
@@ -154,7 +158,7 @@ const Lobby = () => {
           </Button>
         )}
       </Row>
-      {console.log(users.length, readyUsers.length)}
+      {/* {console.log(users.length, readyUsers.length)} */}
     </div>
   );
 };
