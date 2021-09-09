@@ -19,6 +19,7 @@ import {
   Layout
 } from "antd"
 import { useHistory } from "react-router";
+import "../styles/antd.css"
 
 const { Title, Text } = Typography;
 const { Header, Footer, Sider, Content } = Layout;
@@ -95,7 +96,7 @@ const Lobby = () => {
               let boxShadow;
               if (readyUsers.some(v => v.id === user.id)) { 
                 type = "success" 
-                boxShadow = "0 0 5px #1890ff"
+                boxShadow = "#ffadd2"
               }
               else { 
                 type = "default" 
@@ -103,7 +104,7 @@ const Lobby = () => {
               }
               console.log(type)
               return (
-                <Card size="small" style={{ marginTop: 0, boxShadow: `${boxShadow}`, backgroundColor: "#e6f7ff" }}>
+                <Card size="small" type="primary" style={{ marginTop: 0, backgroundColor: `${boxShadow}`}}>
                   <Text >{user.name} </Text>
                 </Card>
 
@@ -115,14 +116,14 @@ const Lobby = () => {
           <Countdown
             date={Date.now() + 5000}
             onComplete={() => history.push("/game")}
-            renderer={({ seconds }) => <Button size="large" type="primary" style={{ marginTop: 16 }}>{seconds}</Button>}
+            renderer={({ seconds }) => <Button size="large" type="primary" style={{ marginTop: 16 }} onClick={() => setIsReady(prev => !prev)}>{seconds}</Button>}
           />
           :
           <Button size="large" type="primary" style={{ marginTop: 16 }} onClick={() => setIsReady(prev => !prev)}> {readyText} </Button >
         }
 
       </Row>
-
+      {console.log(users.length, readyUsers.length)}
     </div>
   )
 }
