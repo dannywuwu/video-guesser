@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { io } from "socket.io-client";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import Countdown from "react-countdown";
@@ -62,7 +61,7 @@ const Lobby = () => {
 
   useEffect(() => {
     socket.once("get-ready-players", (readyUsers) => {
-      console.log(readyUsers);
+      console.log("ready users", readyUsers);
       setReadyUsers(readyUsers);
     });
     if (readyUsers.length === users.length) {
@@ -90,6 +89,7 @@ const Lobby = () => {
   } else {
     readyText = "Ready!";
   }
+  console.log("user", user);
   return (
     <div>
       <Row
