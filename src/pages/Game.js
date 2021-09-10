@@ -3,9 +3,6 @@ import { useSocket } from "../context/SocketProvider";
 import VideoPlayer from "../components/VideoPlayer";
 
 const Game = () => {
-  const [search, setSearch] = useState("");
-  // dictionary playerID -> guess
-  const [guess, setGuess] = useState("");
   const [chooser, setChooser] = useState({});
 
   // phase toggle: 'search', 'guess', 'score'
@@ -16,9 +13,9 @@ const Game = () => {
 
   // clear state for next round
   const nextRound = () => {
-    // reset search, player guesses
-    setSearch("");
-    setGuess("");
+    // emit events TODO
+    // reset user isChooser
+    // reset user search, guesses
   };
 
   // mutate users in context
@@ -46,19 +43,6 @@ const Game = () => {
   // give points to selected players
   // called once Chooser submits correct players
   const updatePoints = () => {};
-
-  useEffect(() => {
-    if (search != "") {
-      fetch(`https://song-searcher-backend-thing.weelam.repl.co/get/${search}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setQuery(data);
-          setSubmitted(true);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [search]);
 
   return (
     <div>
