@@ -40,7 +40,7 @@ const Lobby = () => {
   const history = useHistory();
 
   const socket = useSocket();
-  const { user, setUser, users, setUsers } = useUser()
+  const { user, setUser, users, setUsers } = useUser();
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
@@ -62,17 +62,16 @@ const Lobby = () => {
   useEffect(() => {
     socket.once("get-ready-players", (user, ready) => {
       if (ready) {
-        setReadyUsers(prev => [...new Set([...prev, user])])
+        setReadyUsers((prev) => [...new Set([...prev, user])]);
       } else {
-        setReadyUsers(prev => prev.filter(v => v.id !== user.id))
+        setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
       }
     });
     if (readyUsers.length === users.length) {
-      setCountDown(true)
+      setCountDown(true);
     } else {
-      setCountDown(false)
+      setCountDown(false);
     }
-
   }, [readyUsers]);
 
   useEffect(() => {
@@ -84,7 +83,7 @@ const Lobby = () => {
       socket.emit("leave-room", user.room, (users) => {
         console.log(socket.id, " unmounted ", users);
       });
-      setReadyUsers(prev => prev.filter(v => v.id !== user.id))
+      setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
     };
   }, []);
 
@@ -108,27 +107,29 @@ const Lobby = () => {
           >
             {user.room}
           </Title>
-          {Object.keys(users).length !== 0 && users.map((user, index) => {
-            let type;
-            let boxShadow;
-            if (readyUsers.some(v => v.id === user.id)) {
-              type = "success";
-              boxShadow = "#ffadd2";
-            } else {
-              type = "default";
-              boxShadow = "";
-            }
-            console.log(type);
-            return (
-              <Card
-                size="small"
-                type="primary"
-                style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
-              >
-                <Text>{user.name} </Text>
-              </Card>
-            );
-          })}
+          {users.length !== 0 &&
+            users.map((user, index) => {
+              let type;
+              let boxShadow;
+              if (readyUsers.some((v) => v.id === user.id)) {
+                type = "success";
+                boxShadow = "#ffadd2";
+              } else {
+                type = "default";
+                boxShadow = "";
+              }
+              console.log(type);
+              return (
+                <Card
+                  key={index}
+                  size="small"
+                  type="primary"
+                  style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
+                >
+                  <Text>{user.name} </Text>
+                </Card>
+              );
+            })}
         </Col>
 
         {countDown ? (
