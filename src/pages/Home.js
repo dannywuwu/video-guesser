@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, Redirect } from "react-router-dom";
-import { io } from "socket.io-client";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import userFactory from "../hooks/userFactory";
 // ant design
 import "../styles/antd.css";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd";
-import { formatCountdown } from "antd/lib/statistic/utils";
 
 const { Title } = Typography;
 
@@ -29,7 +26,17 @@ const Home = () => {
     // redirect to Game page
     if (isJoin) console.log("these nuts");
     else {
-      setUser(userFactory(socket.id, 0, value.user.name, value.user.room, "", "", false));
+      setUser(
+        userFactory(
+          socket.id,
+          0,
+          value.user.name,
+          value.user.room,
+          "",
+          "",
+          false
+        )
+      );
       history.push(`/lobby/${value.user.room}`);
     }
   };
