@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-import { AutoComplete, Input } from "antd";
+import { Input } from "antd";
 
-const QueryBar = () => {
+const SearchContainer = () => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState("");
-  const [searchDisabled, setSearchDisabled] = useState(false);
+  const [inputDisabled, setInputDisabled] = useState(false);
 
   const onSearch = (value) => {
     console.log("queryResult:", value);
     setQueryResult(value);
     setSearch("");
-    // disable input
+    setInputDisabled(true);
   };
 
   useEffect(() => {
@@ -32,12 +32,12 @@ const QueryBar = () => {
       <Input
         placeholder="Search for YouTube video"
         allowClear
-        onSearch={onSearch}
-        disabled={searchDisabled}
+        onPressEnter={onSearch}
+        disabled={inputDisabled}
         style={{ width: 200 }}
       />
     </div>
   );
 };
 
-export default QueryBar;
+export default SearchContainer;
