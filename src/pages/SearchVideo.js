@@ -211,7 +211,6 @@ const SearchVideo = () => {
         style={{ display: "block", marginBottom: "50px" }}
       />
       <Card>
-				<h1>hello</h1>
         {queryResult.length > 0 &&
           queryResult.slice(slice[0], slice[1]).map((item, index) => {
             return (
