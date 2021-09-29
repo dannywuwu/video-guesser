@@ -193,6 +193,9 @@ const SearchVideo = () => {
         .then((data) => {
           console.log("Fetch youtube", data);
           setQueryResult(data.items);
+					setSlice((prev) => {
+						return [0, 9];
+					});
           setLoading(false);
         })
         .catch((err) => console.log(err));
