@@ -1,13 +1,17 @@
 import React from "react";
 import ReactPlayer from "react-player/youtube";
+import SearchContainer from "./SearchContainer";
 
+// TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
-  const { url } = props;
+  const { url, searchPhase } = props;
   return (
     <div>
-      <h1>player</h1>
-      <p>epic</p>
-      <ReactPlayer url={url} playing={true} />
+      {searchPhase ? (
+        <SearchContainer />
+      ) : (
+        <ReactPlayer url={url} playing={true} />
+      )}
     </div>
   );
 };
