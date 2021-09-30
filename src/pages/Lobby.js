@@ -107,7 +107,7 @@ const Lobby = () => {
           >
             {user.room}
           </Title>
-          {Object.keys(users).length !== 0 &&
+          {users.length !== 0 &&
             users.map((user, index) => {
               let type;
               let boxShadow;
@@ -121,6 +121,7 @@ const Lobby = () => {
               console.log(type);
               return (
                 <Card
+                  key={index}
                   size="small"
                   type="primary"
                   style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
