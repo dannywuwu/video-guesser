@@ -9,9 +9,16 @@ const UserList = (props) => {
     <div className="site-card-wrapper">
       <Row gutter={12}>
         {users.map((user) => {
-          <Col span={4}>
-            <UserCard key={user.id} name={user.name} points={points} />;
-          </Col>;
+          return (
+            <Col span={4}>
+              <UserCard
+                key={user.id}
+                name={user.name}
+                points={user.points}
+                guess={user.guess}
+              />
+            </Col>
+          );
         })}
       </Row>
     </div>
