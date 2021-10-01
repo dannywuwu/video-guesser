@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "antd";
+import "../styles/ant-components.css";
 
 const UserCard = (props) => {
   const { name, points, guess } = props;
