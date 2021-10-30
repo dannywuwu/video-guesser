@@ -24,13 +24,13 @@ const {
   removeUser,
   getUser,
   getRoom,
-} = require("../server/users.js");
+} = require("../build/users.js");
 const {
   addUserToRoom,
   getRoomTurn,
   leaveRoom,
   getUsersInRoom,
-} = require("../server/room.js");
+} = require("../build/room.js");
 
 var users: Users = {}; // user id -> user objects
 var rooms: Rooms = {}; // room id -> room objects
