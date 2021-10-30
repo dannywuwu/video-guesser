@@ -1,4 +1,4 @@
-interface User {
+type User = {
   id: number;
   position: number;
   name?: string;
@@ -7,7 +7,7 @@ interface User {
   isChooser: boolean;
   guess?: string;
   info(): string;
-}
+};
 
 // maps user id to User object
 type Users = Record<string, User>;

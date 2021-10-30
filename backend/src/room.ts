@@ -1,48 +1,45 @@
 // room room!
-interface Room {
-  users: User[];
+type Room = {
+  users: Users;
   turn: number;
-}
+};
 
 // maps room id to Room object
 type Rooms = Record<string, Room>;
 
-const addUserToRoom = (rooms: Rooms, room: string, user: User) => {
+const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
+  const uid = user.id;
   // if room exists, add user
   if (rooms[room]) {
-    rooms[room].users.push(user);
+    rooms[room].users[uid] = user;
   } else {
     // new room containing only user
-    rooms[room].users = [user];
+    rooms[room].users = {};
+    rooms[room].users[uid] = user;
   }
 };
 
 // gets user inside a particular room
-const getUsersInRoom = (rooms: Rooms, room: string) => {
-  // return users.filter(user => user.room === room)
+const getUsersInRoom = (rooms: Rooms, room: string): Users => {
   return rooms[room].users;
 };
 
 // gets the current turn of that room
-const getRoomTurn = (rooms: Rooms, room: string) => {
-  return rooms[room];
+const getRoomTurn = (rooms: Rooms, room: string): number => {
+  return rooms[room].turn;
 };
 
 // isekai yourself from the room
-const leaveRoom = (user: User, rooms: Rooms, id: number) => {
+const leaveRoom = (user: User, rooms: Rooms): void => {
   // assert room is defined
   if (user.room === undefined) {
     throw "How are you leaving a room when you're not in a room";
   }
-  // filtere yourself from the room
-  if (rooms[user.room]) {
-    rooms[user.room].users = rooms[user.room].users.filter(
-      (user: User) => user.id !== id
-    );
-  }
+  // delete yourself from the room
+  delete rooms[user.id];
   // you are now nameless and without room/board
-  user.room = undefined;
   user.name = undefined;
+  user.room = undefined;
 };
 
 module.exports = {
