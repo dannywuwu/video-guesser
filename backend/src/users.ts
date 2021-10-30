@@ -1,8 +1,8 @@
 interface User {
   id: number;
   order: number;
-  name: string;
-  room: string;
+  name?: string;
+  room?: string;
   points: number;
   isChooser: boolean;
   guess?: string;
