@@ -4,11 +4,10 @@ interface Room {
   turn: number;
 }
 
-const addUserToRoom = (
-  rooms: Record<string, Room>,
-  room: string,
-  user: User
-) => {
+// maps room id to Room object
+type Rooms = Record<string, Room>;
+
+const addUserToRoom = (rooms: Rooms, room: string, user: User) => {
   // if room exists, add user
   if (rooms[room]) {
     rooms[room].users.push(user);
@@ -19,18 +18,18 @@ const addUserToRoom = (
 };
 
 // gets user inside a particular room
-const getUsersInRoom = (rooms: Record<string, Room>, room: string) => {
+const getUsersInRoom = (rooms: Rooms, room: string) => {
   // return users.filter(user => user.room === room)
   return rooms[room].users;
 };
 
 // gets the current turn of that room
-const getRoomTurn = (rooms: Record<string, Room>, room: string) => {
+const getRoomTurn = (rooms: Rooms, room: string) => {
   return rooms[room];
 };
 
 // isekai yourself from the room
-const leaveRoom = (user: User, rooms: Record<string, Room>, id: number) => {
+const leaveRoom = (user: User, rooms: Rooms, id: number) => {
   // assert room is defined
   if (user.room === undefined) {
     throw "How are you leaving a room when you're not in a room";
@@ -38,7 +37,7 @@ const leaveRoom = (user: User, rooms: Record<string, Room>, id: number) => {
   // filtere yourself from the room
   if (rooms[user.room]) {
     rooms[user.room].users = rooms[user.room].users.filter(
-      (user) => user.id !== id
+      (user: User) => user.id !== id
     );
   }
   // you are now nameless and without room/board

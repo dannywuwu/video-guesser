@@ -1,6 +1,6 @@
 interface User {
   id: number;
-  order: number;
+  position: number;
   name?: string;
   room?: string;
   points: number;
@@ -9,11 +9,14 @@ interface User {
   info(): string;
 }
 
+// maps user id to User object
+type Users = Record<string, User>;
+
 const userFactory = (user: User): User => {
-  const { id, order, name, room, points, isChooser, guess } = user;
+  const { id, position, name, room, points, isChooser, guess } = user;
   return {
     id: id,
-    order: order,
+    position: position,
     name: name,
     room: room,
     points: points,
@@ -26,15 +29,15 @@ const userFactory = (user: User): User => {
 };
 
 // finds the user from id
-const getUser = (users: User[], id: number): User => {
-  // return users.find(user => {
-  //   return user.id === id
-  // })
+const getUser = (users: Record<string, User>, id: number): User => {
   return users[id]; // returns user object
 };
 
 // gets the room of a user
-const getRoom = (users: User[], id: number): string | undefined => {
+const getRoom = (
+  users: Record<string, User>,
+  id: number
+): string | undefined => {
   // let user = getUser(users, id)
   // if (user) return user.room
   // else return null
@@ -44,7 +47,11 @@ const getRoom = (users: User[], id: number): string | undefined => {
 };
 
 // sets the room of a user
-const setRoom = (users: User[], room: string, id: number): void => {
+const setRoom = (
+  users: Record<string, User>,
+  room: string,
+  id: number
+): void => {
   // let user = getUser(users, id)
   // user.room = room
   let user = getUser(users, id);
@@ -52,13 +59,20 @@ const setRoom = (users: User[], room: string, id: number): void => {
 };
 
 // sets the name of a user
-const setName = (users: User[], name: string, id: number): void => {
+const setName = (
+  users: Record<string, User>,
+  name: string,
+  id: number
+): void => {
   let user = getUser(users, id);
   user.name = name;
 };
 
 // isekai's the user from existence
-const removeUser = (users: User[], id: number): User[] => {
+const removeUser = (
+  users: Record<string, User>,
+  id: number
+): Record<string, User> => {
   delete users[id];
   return users;
 };
