@@ -36,7 +36,7 @@ var users: Users = {}; // user id -> user objects
 var rooms: Rooms = {}; // room id -> room objects
 
 io.on("connection", (socket: any) => {
-  let user = userFactory(socket.id, "", "");
+  const user = userFactory(socket.id);
   users[socket.id] = user;
   console.log(socket.id + " has connected");
   socket.on(

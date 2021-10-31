@@ -1,6 +1,6 @@
 type User = {
-  id: number;
-  position: number;
+  id: string;
+  position?: number;
   name?: string;
   room?: string;
   points: number;
@@ -12,16 +12,15 @@ type User = {
 // maps user id to User object
 type Users = Record<string, User>;
 
-const userFactory = (user: User): User => {
-  const { id, position, name, room, points, isChooser, guess } = user;
+const userFactory = (id: string, name: string, room: string): User => {
   return {
     id: id,
-    position: position,
+    position: undefined,
     name: name,
     room: room,
-    points: points,
-    guess: guess,
-    isChooser: isChooser,
+    points: 0,
+    guess: undefined,
+    isChooser: false,
     info(): string {
       return `${this.id} ${this.name}, ${this.room}`;
     },
@@ -29,18 +28,15 @@ const userFactory = (user: User): User => {
 };
 
 // finds the user from id
-const getUser = (users: Record<string, User>, id: number): User => {
+const getUser = (users: Record<string, User>, id: string): User => {
   return users[id]; // returns user object
 };
 
 // gets the room of a user
 const getRoom = (
   users: Record<string, User>,
-  id: number
+  id: string
 ): string | undefined => {
-  // let user = getUser(users, id)
-  // if (user) return user.room
-  // else return null
   let user = getUser(users, id);
   // if user exists, return their room - else undefined
   return user ? user.room : undefined;
@@ -50,7 +46,7 @@ const getRoom = (
 const setRoom = (
   users: Record<string, User>,
   room: string,
-  id: number
+  id: string
 ): void => {
   // let user = getUser(users, id)
   // user.room = room
@@ -62,7 +58,7 @@ const setRoom = (
 const setName = (
   users: Record<string, User>,
   name: string,
-  id: number
+  id: string
 ): void => {
   let user = getUser(users, id);
   user.name = name;
@@ -71,7 +67,7 @@ const setName = (
 // isekai's the user from existence
 const removeUser = (
   users: Record<string, User>,
-  id: number
+  id: string
 ): Record<string, User> => {
   delete users[id];
   return users;
