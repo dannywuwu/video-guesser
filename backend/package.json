@@ -7,7 +7,9 @@
     "start:build": "tsc -w",
     "start:run": "nodemon build/index.js",
     "start": "concurrently npm:start:*",
-    "dev": "concurrently npm:start:*"
+    "dev": "concurrently npm:start:*",
+    "test:watch": "jest --watchAll --verbose",
+    "test": "concurrently \"npm:start:build\" \"npm:test:watch\""
   },
   "keywords": [],
   "author": "",
