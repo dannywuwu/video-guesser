@@ -27,27 +27,30 @@ const userFactory = (id: string, name: string, room: string): User => {
   };
 };
 
+// mutates users array to contain new user [id]
+const addUserToUsers = (users: Users, user: User, id: string): void => {
+  users[id] = user;
+};
+
 // finds the user from id
-const getUser = (users: Record<string, User>, id: string): User => {
+const getUser = (users: Users, id: string): User => {
   return users[id]; // returns user object
 };
 
 // gets the room of a user
-const getRoom = (
-  users: Record<string, User>,
-  id: string
-): string | undefined => {
+const getRoom = (users: Users, id: string): string | undefined => {
   let user = getUser(users, id);
   // if user exists, return their room - else undefined
   return user ? user.room : undefined;
 };
 
+// returns number of users in given users dict
+const getUserCount = (users: Users): number => {
+  return Object.keys(users).length;
+};
+
 // sets the room of a user
-const setRoom = (
-  users: Record<string, User>,
-  room: string,
-  id: string
-): void => {
+const setRoom = (users: Users, room: string, id: string): void => {
   // let user = getUser(users, id)
   // user.room = room
   let user = getUser(users, id);
@@ -55,20 +58,13 @@ const setRoom = (
 };
 
 // sets the name of a user
-const setName = (
-  users: Record<string, User>,
-  name: string,
-  id: string
-): void => {
+const setName = (users: Users, name: string, id: string): void => {
   let user = getUser(users, id);
   user.name = name;
 };
 
 // isekai's the user from existence
-const removeUser = (
-  users: Record<string, User>,
-  id: string
-): Record<string, User> => {
+const removeUser = (users: Users, id: string): Users => {
   delete users[id];
   return users;
 };
@@ -80,4 +76,6 @@ module.exports = {
   removeUser,
   getUser,
   getRoom,
+  addUserToUsers,
+  getUserCount,
 };

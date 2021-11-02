@@ -37,7 +37,7 @@ var rooms: Rooms = {}; // room id -> room objects
 
 io.on("connection", (socket: any) => {
   const user = userFactory(socket.id);
-  users[socket.id] = user;
+  addUserToUsers(users, user, socket.id);
   console.log(socket.id + " has connected");
   socket.on(
     "join-room",
