@@ -11,11 +11,22 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   const uid = user.id;
   // if room exists, add user
   if (rooms[room]) {
+    // if user already in room, remove
+    if (user.room != undefined) {
+      leaveRoom(user, rooms);
+    }
     rooms[room].users[uid] = user;
+    user.room = room;
   } else {
     // new room containing only user
-    rooms[room].users = {};
-    rooms[room].users[uid] = user;
+    rooms[room] = {
+      users: {
+        [uid]: user,
+      },
+      turn: 0,
+    };
+    // mutate user
+    user.room = room;
   }
 };
 

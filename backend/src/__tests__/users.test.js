@@ -1,4 +1,3 @@
-const room = require("../../build/room.js");
 const user = require("../../build/users.js");
 
 const u1 = user.userFactory("id1", "jotaro", "room1");
@@ -6,8 +5,6 @@ const u1 = user.userFactory("id1", "jotaro", "room1");
 const users = {
   id1: u1,
 };
-
-const rooms = {};
 
 it("should return user object", () => {
   expect(user.getUser(users, "id1")).toBe(u1);
