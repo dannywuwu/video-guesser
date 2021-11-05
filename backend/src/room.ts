@@ -18,7 +18,7 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
     rooms[room].users[uid] = user;
     user.room = room;
   } else {
-    // new room containing only user
+    // new room containing only user starting at turn 0
     rooms[room] = {
       users: {
         [uid]: user,

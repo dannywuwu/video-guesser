@@ -35,40 +35,50 @@ const {
 var users: Users = {}; // user id -> user objects
 var rooms: Rooms = {}; // room id -> room objects
 
+// io 'connection' wrapper
 io.on("connection", (socket: any) => {
+  // create user object
   const user = userFactory(socket.id);
-  addUserToUsers(users, user, socket.id);
-  console.log(socket.id + " has connected");
+  // ID of the current user
+  const uid = user.id;
+  // add user to users{} dict
+  addUserToUsers(users, user, uid);
+  console.log(uid + " has connected");
+
+  // user joins room
   socket.on(
     "join-room",
     (name: string, room: string, callback: (user: User) => User) => {
+      // subscribe user socket to room
       socket.join(room);
       console.log(`${name} has joined room: ${room}`);
-      setRoom(users, room, socket.id);
-      setName(users, name, socket.id);
-      //
 
+      // updates user.name
+      setName(users, name, uid);
+      // updates rooms and user.room
       addUserToRoom(rooms, room, user);
-      callback(user); // send the user to the client
-      // send client users in their room
-      console.log("getUsersInRoom ", getUsersInRoom(rooms, room));
 
+      callback(user); // send the user back to the client
+      // re-render users in room
       io.to(room).emit("display-users", getUsersInRoom(rooms, room));
     }
   );
 
+  // send this statement to every other client, the user and if they're ready or not
   socket.on("ready-player", (isReady: boolean) => {
-    let room = getRoom(users, socket.id);
+    // get room of current user
+    const room = getRoom(users, uid);
+    // current player is ready
     io.to(room).emit("get-ready-players", user, isReady);
-    // send this statement to every other client, the user and if they're ready or not
   });
 
+  // choosing the chooser phase
   socket.on("choose-chooser", (roomID: number) => {
     console.log("choosing chooser for " + roomID);
-    // increment roomTurns[roomID]
+    // increment the turn counter for this room
     const roomTurn = ++rooms[roomID].turn;
     const roomUsers = getUsersInRoom(rooms, roomID);
-    // chooser ID from % 12
+    // chooser ID from users mod 12 in room
     const newChooser = roomUsers.find(
       (user: User) => user.position == roomTurn % 12
     );
@@ -78,34 +88,39 @@ io.on("connection", (socket: any) => {
     io.to(roomID).emit("chooser-chosen", newChooser);
   });
 
+  // user leave room
   socket.on(
     "leave-room",
     (
       room: Room,
       callback: (f: (rooms: Rooms, room: string) => Users) => void
     ) => {
-      console.log(socket.id + " has left " + room);
-      leaveRoom(user, rooms, socket.id);
+      console.log(uid + " has left " + room);
+      // mutate user and rooms[uid]
+      leaveRoom(user, rooms, uid);
       // logging message for testing
       callback(getUsersInRoom(rooms, room));
+      // rerender user display
       io.to(room).emit("display-users", getUsersInRoom(rooms, room));
     }
   );
 
+  // player leaves the game (why would they ever do this)
   socket.on("disconnect", () => {
     // remove user from users, then update client
-    console.log(`${socket.id} has left`);
-    let room = getRoom(users, socket.id);
+    console.log(`${uid} has left`);
+    const room = getRoom(users, uid);
     // remove user from user and readyusers(if applicable) list
-    leaveRoom(user, rooms, socket.id);
-    users = removeUser(users, socket.id);
+    leaveRoom(user, rooms, uid);
+    users = removeUser(users, uid);
     io.to(room).emit("display-users", getUsersInRoom(rooms, room));
   });
 });
 
-// youtube api
+// youtube api key
 const API_KEY = process.env.API_KEY;
 
+// helper to format Youtube API response
 const formatVideoListData = (data: any): Video => {
   return data.map((video: any) => {
     const {
@@ -122,19 +137,16 @@ const formatVideoListData = (data: any): Video => {
   });
 };
 
+// GET endpoint to call Youtube API
 app.get("/get/:search", (req, res) => {
-  console.log("HEREHEREHERE");
   let search = req.params.search;
   const url = `https://youtube.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&maxResults=24&q=${search}`;
   fetch(url)
     .then((response: any) => response.json())
     .then((data: any) => {
       const { items } = data;
-      console.log(items);
       const videoListData = { items: formatVideoListData(items) };
       res.header("Content-Type", "application/json");
-      // res.send(videoListData)
-      //   res.send(data)
       res.send(JSON.stringify(videoListData, null, 4));
     });
 });
