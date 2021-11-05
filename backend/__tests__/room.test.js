@@ -1,7 +1,6 @@
-const { addUserToRoom, leaveRoom } = require("../../build/room.js");
-const room = require("../../build/room.js");
+const { addUserToRoom, leaveRoom } = require("../build/room.js");
 
-const user = require("../../build/users.js");
+const user = require("../build/users.js");
 
 const u1 = user.userFactory("id1", "jotaro", "room1");
 

@@ -8,8 +8,9 @@
     "start:run": "nodemon build/index.js",
     "start": "concurrently npm:start:*",
     "dev": "concurrently npm:start:*",
-    "test:watch": "jest --watchAll --verbose --coverage",
-    "test": "concurrently \"npm:start:build\" \"npm:test:watch\""
+    "test:watch": "jest --watchAll",
+    "test:all": "jest --watchAll --verbose --coverage",
+    "test": "concurrently  \"npm:test:watch\" \"npm:start:build\""
   },
   "keywords": [],
   "author": "",
