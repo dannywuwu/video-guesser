@@ -1,4 +1,4 @@
-const user = require("../../build/users.js");
+const user = require("../build/users.js");
 
 const u1 = user.userFactory("id1", "jotaro", "room1");
 
