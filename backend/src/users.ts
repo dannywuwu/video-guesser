@@ -25,20 +25,6 @@ const userFactory = (id: string, name: string, room: string): User => {
   };
 };
 
-// creates user and adds them to Users and Rooms
-const createUser = (
-  id: string,
-  name: string,
-  room: string,
-  users: Users,
-  rooms: Rooms
-): User => {
-  const newUser = userFactory(id, name, room);
-  addUserToUsers(users, newUser, id);
-  addUserToRoom(rooms, room, newUser);
-  return newUser;
-};
-
 // mutates users array to contain new user [id]
 const addUserToUsers = (users: Users, user: User, id: string): void => {
   users[id] = user;
@@ -90,5 +76,4 @@ module.exports = {
   getRoom,
   addUserToUsers,
   getUserCount,
-  createUser,
 };
