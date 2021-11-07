@@ -35,6 +35,20 @@ const {
 var users: Users = {}; // user id -> user objects
 var rooms: Rooms = {}; // room id -> room objects
 
+// creates user and adds them to Users and Rooms
+const createUser = (
+  id: string,
+  name: string,
+  room: string,
+  users: Users,
+  rooms: Rooms
+): User => {
+  const newUser = userFactory(id, name, room);
+  addUserToUsers(users, newUser, id);
+  addUserToRoom(rooms, room, newUser);
+  return newUser;
+};
+
 // io 'connection' wrapper
 io.on("connection", (socket: any) => {
   // create user object
