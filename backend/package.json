@@ -10,7 +10,7 @@
     "dev": "concurrently npm:start:*",
     "test:watch": "jest --watchAll",
     "test:all": "jest --watchAll --verbose --coverage",
-    "test": "concurrently  \"npm:test:watch\" \"npm:start:build\""
+    "test": "concurrently \"npm:test:watch\"  \"npm:start:build\""
   },
   "keywords": [],
   "author": "",
