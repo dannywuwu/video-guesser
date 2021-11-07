@@ -78,13 +78,14 @@ io.on("connection", (socket: any) => {
     // increment the turn counter for this room
     const roomTurn = ++rooms[roomID].turn;
     const roomUsers = getUsersInRoom(rooms, roomID);
-    // chooser ID from users mod 12 in room
-    const newChooser = roomUsers.find(
-      (user: User) => user.position == roomTurn % 12
+    // chooser ID from [1, # users in room]
+    const newChooserID = roomUsers.find(
+      (user: User) => user.position == roomTurn % roomUsers.length
     );
-    console.log("new chooser is " + newChooser.id);
-    // update users list
-    users[newChooser.id].isChooser = true;
+    console.log("new chooser is " + newChooserID);
+    // update chooser for room
+    const newChooser = getUser(users, newChooserID);
+    rooms[roomID].chooser = newChooser;
     io.to(roomID).emit("chooser-chosen", newChooser);
   });
 

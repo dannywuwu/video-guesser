@@ -2,6 +2,7 @@
 type Room = {
   users: Users;
   turn: number;
+  chooser?: User;
 };
 
 // maps room id to Room object
@@ -11,12 +12,16 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   const uid = user.id;
   // if room exists, add user
   if (rooms[room]) {
-    // if user already in room, remove
+    // if user already in room, remove current room
     if (user.room != undefined) {
       leaveRoom(user, rooms);
     }
-    rooms[room].users[uid] = user;
-    user.room = room;
+    rooms[room] = {
+      ...rooms[room],
+      users: {
+        [uid]: user,
+      },
+    };
   } else {
     // new room containing only user starting at turn 0
     rooms[room] = {
@@ -24,13 +29,15 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
         [uid]: user,
       },
       turn: 0,
+      chooser: undefined,
     };
-    // mutate user
-    user.room = room;
   }
+  // mutate user
+  user.room = room;
+  user.position = Object.keys(rooms[room].users).length;
 };
 
-// gets user inside a particular room
+// gets users map inside a particular room
 const getUsersInRoom = (rooms: Rooms, room: string): Users => {
   return rooms[room].users;
 };

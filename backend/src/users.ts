@@ -4,7 +4,6 @@ type User = {
   name?: string;
   room?: string;
   points: number;
-  isChooser: boolean;
   guess?: string;
   info(): string;
 };
@@ -15,12 +14,11 @@ type Users = Record<string, User>;
 const userFactory = (id: string, name: string, room: string): User => {
   return {
     id: id,
-    position: undefined,
     name: name,
     room: room,
     points: 0,
+    position: undefined,
     guess: undefined,
-    isChooser: false,
     info(): string {
       return `${this.id} ${this.name}, ${this.room}`;
     },
