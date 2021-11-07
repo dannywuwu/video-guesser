@@ -34,7 +34,7 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   }
   // mutate user
   user.room = room;
-  user.position = Object.keys(rooms[room].users).length;
+  user.position = Object.keys(getUsersInRoom(rooms, room)).length;
 };
 
 // gets users map inside a particular room
