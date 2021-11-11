@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 export {}; // fixes 'Cannot redeclare block-scoped variable 'fetch'.ts(2451)' warning
 import express from "express";
 
