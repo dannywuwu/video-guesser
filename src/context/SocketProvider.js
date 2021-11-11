@@ -1,36 +1,33 @@
-import React, { useEffect, useState, useContext } from 'react'
-import io from 'socket.io-client'
+import React, { useEffect, useState, useContext } from "react";
+import io from "clientSocket.io-client";
 
-const SocketContext = React.createContext()
+const SocketContext = React.createContext();
 
 export function useSocket() {
-  return useContext(SocketContext)
+  return useContext(SocketContext);
 }
 export function SocketProvider({ children }) {
-  const [socket, setSocket] = useState()
+  const [clientSocket, setSocket] = useState();
 
   useEffect(() => {
-    const temp_socket = io("https://song-searcher-backend-thing.weelam.repl.co")
-    temp_socket.on('connect', () => {
-      console.log(temp_socket.id) 
-      setSocket(temp_socket)
-    }, [])
-    
-    // temp_socket.emit("join-room", name, room, (user) => {
-    //   console.log(user)
-    // })
-
+    const tempSocket = io("localhost:5000");
+    tempSocket.on(
+      "connect",
+      () => {
+        console.log(tempSocket.id);
+        setSocket(tempSocket);
+      },
+      []
+    );
 
     return () => {
-      temp_socket.disconnect()
-      temp_socket.off()
-    }
-  }, [])
+      tempSocket.disconnect();
+      tempSocket.off();
+    };
+  }, []);
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={clientSocket}>
       {children}
     </SocketContext.Provider>
-  )
+  );
 }
-
-

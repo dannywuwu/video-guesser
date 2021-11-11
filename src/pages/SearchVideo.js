@@ -188,14 +188,14 @@ const SearchVideo = () => {
 
   useEffect(() => {
     if (search != "") {
-      fetch(`https://song-searcher-backend-thing.weelam.repl.co/get/${search}`)
+      fetch(`localhost:5000/get/${search}`)
         .then((res) => res.json())
         .then((data) => {
           console.log("Fetch youtube", data);
           setQueryResult(data.items);
-					setSlice((prev) => {
-						return [0, 9];
-					});
+          setSlice((prev) => {
+            return [0, 9];
+          });
           setLoading(false);
         })
         .catch((err) => console.log(err));
@@ -217,13 +217,12 @@ const SearchVideo = () => {
         {queryResult.length > 0 &&
           queryResult.slice(slice[0], slice[1]).map((item, index) => {
             return (
-							
               <Card.Grid
                 key={index}
                 // bordered={false}
                 onClick={() => selectVideo(index)}
                 // loading={loading}
-								style={{display: "inline-block"}}
+                style={{ display: "inline-block" }}
               >
                 <Meta
                   avatar={<Avatar size={96} shape="square" src={item.url} />}
@@ -235,18 +234,16 @@ const SearchVideo = () => {
                   }}
                 />
               </Card.Grid>
-							
             );
           })}
       </Card>
       <Button
         type="primary"
-        icon={<DownOutlined style={{fontSize: "2rem"}}/>}
+        icon={<DownOutlined style={{ fontSize: "2rem" }} />}
         onClick={extendSearch}
         size="large"
-        style={{ display: "block", margin: "1rem auto", width: "20%"}}
+        style={{ display: "block", margin: "1rem auto", width: "20%" }}
       />
-
     </div>
   );
 };
