@@ -1,43 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import userFactory from "../hooks/userFactory";
 // ant design
 import "../styles/antd.css";
-import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd";
+import { Button, Typography, Form, Input, Row, Col } from "antd";
 
 const { Title } = Typography;
 
 const Home = () => {
   const history = useHistory();
-  const socket = useSocket();
-  const { user, setUser } = useUser();
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isJoin, setIsJoin] = useState(false); // joining or creating?
 
-  useEffect(() => {
-    // console.log(user, socket.id)
-  }, []);
-
+  // value is value of form
   const onFinish = (value) => {
-    setIsModalVisible(false);
-    // redirect to Game page
-    if (isJoin) console.log("these nuts");
+    const { user } = value;
+    const { name, room } = user;
+    // redirect to existing Game page if room already exists
+    // TODO check if join and redirect
+    if (isJoin) console.log("TODO: Redirect if room exists");
     else {
-      setUser(
-        userFactory(
-          socket.id,
-          0,
-          value.user.name,
-          value.user.room,
-          "",
-          "",
-          false
-        )
-      );
-      history.push(`/lobby/${value.user.room}`);
+      // create new lobby
+      history.push(`/lobby/${room}`);
     }
   };
 
