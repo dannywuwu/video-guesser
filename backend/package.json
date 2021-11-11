@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start:build": "tsc -w",
-    "start:run": "nodemon build/index.js",
+    "start:run": "nodemon build/index.js -r .env",
     "start": "concurrently npm:start:*",
     "dev": "concurrently npm:start:*",
     "test:watch": "jest --watchAll",

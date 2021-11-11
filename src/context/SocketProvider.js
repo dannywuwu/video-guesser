@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import io from "clientSocket.io-client";
+import { io } from "socket.io-client";
 
 const SocketContext = React.createContext();
 
