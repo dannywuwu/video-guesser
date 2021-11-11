@@ -10,7 +10,7 @@ export function SocketProvider({ children }) {
   const [clientSocket, setSocket] = useState();
 
   useEffect(() => {
-    const tempSocket = io("localhost:5000");
+    const tempSocket = io("http://localhost:5000");
     tempSocket.on(
       "connect",
       () => {

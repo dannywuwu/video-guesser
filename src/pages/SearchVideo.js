@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "antd";
 import { Card, Avatar } from "antd";
-import { Button, Radio } from "antd";
+import { Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 const { Meta } = Card;
 const { Search } = Input;
@@ -188,7 +188,7 @@ const SearchVideo = () => {
 
   useEffect(() => {
     if (search != "") {
-      fetch(`localhost:5000/get/${search}`)
+      fetch(`http://localhost:5000/get/${search}`)
         .then((res) => res.json())
         .then((data) => {
           console.log("Fetch youtube", data);

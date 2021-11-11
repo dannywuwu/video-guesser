@@ -14,7 +14,7 @@ const http = require("http").createServer(app);
 const morgan = require("morgan");
 const io = require("socket.io")(http, {
   cors: {
-    origin: "localhost:3000",
+    origins: ["http://localhost:3000"],
   },
 });
 app.use(cors());
@@ -28,6 +28,7 @@ const {
   removeUser,
   getUser,
   getRoom,
+  addUserToUsers,
 } = require("../build/users.js");
 const {
   addUserToRoom,
