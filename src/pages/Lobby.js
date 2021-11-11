@@ -3,29 +3,17 @@ import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import Countdown from "react-countdown";
 // import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import {
-  Form,
-  Input,
-  Button,
-  Checkbox,
-  Card,
-  Avatar,
-  Row,
-  Col,
-  Box,
-  Space,
-  Typography,
-  Layout,
-} from "antd";
+import { Button, Card, Row, Col, Typography } from "antd";
 import { useHistory } from "react-router";
 import "../styles/antd.css";
 
 const { Title, Text } = Typography;
-const { Header, Footer, Sider, Content } = Layout;
+// const { Header, Footer, Sider, Content } = Layout;
 
-const { Meta } = Card;
+// const { Meta } = Card;
 
-const classes = {
+/*
+const styles = {
   gridStyle: {
     width: "50%",
     height: "auto",
@@ -34,30 +22,32 @@ const classes = {
     marginRight: "auto",
   },
 };
+*/
 
 const Lobby = () => {
   const history = useHistory();
 
   const socket = useSocket();
-  const { user, setUser, users, setUsers } = useUser();
+  const { user, setUser, allUsers, setAllUsers } = useUser();
+  // state
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
 
+  // listen and render users
   useEffect(() => {
     socket.once("display-users", (users) => {
-      setUsers(users);
+      setAllUsers(users);
     });
+    console.log("new users");
+  }, [allUsers]);
 
-    return () => {
-      console.log("unmount set users");
-    };
-  }, [users]);
-
+  // player is ready
   useEffect(() => {
     socket.emit("ready-player", isReady);
   }, [isReady]);
 
+  // fetch ready players and render ready
   useEffect(() => {
     socket.once("get-ready-players", (user, ready) => {
       if (ready) {
@@ -66,22 +56,27 @@ const Lobby = () => {
         setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
       }
     });
-    if (readyUsers.length === users.length) {
+    // all players are ready, game start
+    if (readyUsers.length === allUsers.length) {
       setCountDown(true);
     } else {
       setCountDown(false);
     }
   }, [readyUsers]);
 
+  // user join/leave
   useEffect(() => {
+    // user joins a room
     socket.emit("join-room", user.name, user.room, (user) => {
       console.log(user.name + " has joined room " + user.room);
     });
 
+    // emits leave-room when user leaves
     return () => {
       socket.emit("leave-room", user.room, (users) => {
         console.log(socket.id, " unmounted ", users);
       });
+      // re-render ready users
       setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
     };
   }, []);
@@ -107,8 +102,8 @@ const Lobby = () => {
           >
             {user.room}
           </Title>
-          {users.length !== 0 &&
-            users.map((user, index) => {
+          {allUsers.length !== 0 &&
+            allUsers.map((user, index) => {
               let type;
               let boxShadow;
               if (readyUsers.some((v) => v.id === user.id)) {
@@ -159,7 +154,7 @@ const Lobby = () => {
           </Button>
         )}
       </Row>
-      {/* {console.log(users.length, readyUsers.length)} */}
+      {/* {console.log(allUsers.length, readyUsers.length)} */}
     </div>
   );
 };
