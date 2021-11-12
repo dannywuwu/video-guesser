@@ -20,12 +20,12 @@ const Game = () => {
 
   // mutate users in context
   const chooseChooser = () => {
-    setChooser(None);
+    setChooser(null);
   };
 
   // on mount round 0, choose initial chooser
   useEffect(() => {
-    socket.emit("choose-chooser", roomID);
+    socket.emit("choose-chooser", socket.id);
   }, []);
 
   // listen to above emit

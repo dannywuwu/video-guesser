@@ -4,13 +4,19 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "start:build": "tsc -w",
+    "start:run": "nodemon build/index.js",
+    "start": "concurrently npm:start:*",
+    "dev": "concurrently npm:start:*",
+    "test:watch": "jest --watchAll",
+    "test:all": "jest --watchAll --verbose --coverage",
+    "test": "concurrently \"npm:test:watch\"  \"npm:start:build\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.13",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "google-auth-library": "^7.9.1",
@@ -19,5 +25,9 @@
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.12",
     "socket.io": "^4.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^6.3.0",
+    "typescript": "^4.4.4"
   }
 }

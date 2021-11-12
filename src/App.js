@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./pages/Home.js";
 import Lobby from "./pages/Lobby.js";
 import GameTest from "./pages/GameTest.js";
+import Game from "./pages/Game.js";
 import { UserProvider } from "./context/UserProvider";
 import { SocketProvider } from "./context/SocketProvider";
 
@@ -16,11 +17,14 @@ const App = () => {
               <Route exact path="/">
                 <Home />
               </Route>
-                <Route path="/game">
-                <GameTest />
+              <Route path="/game">
+                <Game />
               </Route>
               <Route path="/lobby">
                 <Lobby />
+              </Route>
+              <Route path="/test">
+                <GameTest />
               </Route>
             </Switch>
           </Router>
