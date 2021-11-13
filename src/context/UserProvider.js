@@ -17,7 +17,8 @@ export function UserProvider({ children }) {
     undefined // guess
   );
   const [user, setUser] = useState(defaultUser);
-  const [allUsers, setAllUsers] = useState([user]);
+  // allUsers maps from {uid -> user object}
+  const [allUsers, setAllUsers] = useState({});
 
   const value = { user, setUser, allUsers, setAllUsers };
 

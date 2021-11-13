@@ -50,9 +50,6 @@ const getRoomTurn = (rooms: Rooms, room: string): number => {
 // isekai yourself from the room
 const leaveRoom = (user: User, rooms: Rooms): void => {
   // assert room is defined
-  if (user.room === undefined) {
-    throw "How are you leaving a room when you're not in a room";
-  }
   // delete yourself from the room
   delete rooms[user.id];
   // you are now nameless and without room/board

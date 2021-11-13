@@ -56,18 +56,35 @@ const createUser = (
 
 // io 'connection' wrapper
 io.on("connection", (socket: any) => {
-  // create user object
-  const user = userFactory(socket.id);
   // ID of the current user
-  const uid = user.id;
-  // add user to users{} dict
-  addUserToUsers(users, user, uid);
-  console.log(uid + " has connected");
+  const uid = socket.id;
+  let clientUser: User;
+
+  // sets user on backend and sends it back to client in callback
+  socket.on(
+    "set-user",
+    (
+      id: string,
+      name: string,
+      room: string,
+      callback: (user: User) => User
+    ) => {
+      if (id != uid) {
+        throw "set-user id is not uid";
+      }
+      // create user object
+      clientUser = userFactory(id, name, room);
+      // add user to users{} dict
+      addUserToUsers(users, clientUser, uid);
+      console.log(uid + " has connected");
+      callback(clientUser);
+    }
+  );
 
   // user joins room
   socket.on(
     "join-room",
-    (name: string, room: string, callback: (user: User) => User) => {
+    (name: string, room: string, callback: (users: Users) => Users) => {
       // subscribe user socket to room
       socket.join(room);
       console.log(`${name} has joined room: ${room}`);
@@ -75,11 +92,9 @@ io.on("connection", (socket: any) => {
       // updates user.name
       setName(users, name, uid);
       // updates rooms and user.room
-      addUserToRoom(rooms, room, user);
-
-      callback(user); // send the user back to the client
-      // re-render users in room
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+      addUserToRoom(rooms, room, clientUser);
+      // send users in room back to client
+      callback(getUsersInRoom(rooms, room));
     }
   );
 
@@ -88,7 +103,7 @@ io.on("connection", (socket: any) => {
     // get room of current user
     const room = getRoom(users, uid);
     // current player is ready
-    io.to(room).emit("get-ready-players", user, isReady);
+    io.to(room).emit("get-ready-players", clientUser, isReady);
   });
 
   // choosing the chooser phase
@@ -117,7 +132,7 @@ io.on("connection", (socket: any) => {
     ) => {
       console.log(uid + " has left " + room);
       // mutate user and rooms[uid]
-      leaveRoom(user, rooms, uid);
+      leaveRoom(clientUser, rooms, uid);
       // logging message for testing
       callback(getUsersInRoom(rooms, room));
       // rerender user display
@@ -131,7 +146,7 @@ io.on("connection", (socket: any) => {
     console.log(`${uid} has left`);
     const room = getRoom(users, uid);
     // remove user from user and readyusers(if applicable) list
-    leaveRoom(user, rooms, uid);
+    leaveRoom(clientUser, rooms, uid);
     users = removeUser(users, uid);
     io.to(room).emit("display-users", getUsersInRoom(rooms, room));
   });

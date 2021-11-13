@@ -61,7 +61,7 @@ const Lobby = () => {
         }
       });
       // all players are ready, game start
-      if (readyUsers.length === allUsers.length) {
+      if (readyUsers.length === Object.keys(allUsers).length) {
         setCountDown(true);
       } else {
         setCountDown(false);
@@ -72,9 +72,10 @@ const Lobby = () => {
   // user join/leave
   useEffect(() => {
     if (socket) {
+      console.log("joining room as ", user);
       // user joins a room
-      socket.emit("join-room", user.name, user.room, (user) => {
-        console.log(user.name + " has joined room " + user.room);
+      socket.emit("join-room", user.name, user.room, (users) => {
+        console.log("users in room", users);
       });
 
       // emits leave-room when user leaves
@@ -94,7 +95,7 @@ const Lobby = () => {
   } else {
     readyText = "Ready!";
   }
-  console.log("user", user);
+  // redirect if socket undefined
   return socket ? (
     <div>
       <Row
@@ -109,11 +110,11 @@ const Lobby = () => {
           >
             {user.room}
           </Title>
-          {allUsers.length !== 0 &&
-            allUsers.map((user, index) => {
+          {Object.keys(allUsers).length !== 0 &&
+            Object.keys(allUsers).map((uid, index) => {
               let type;
               let boxShadow;
-              if (readyUsers.some((v) => v.id === user.id)) {
+              if (readyUsers.some((v) => v.id === uid)) {
                 type = "success";
                 boxShadow = "#ffadd2";
               } else {
@@ -127,7 +128,7 @@ const Lobby = () => {
                   type="primary"
                   style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
                 >
-                  <Text>{user.name} </Text>
+                  <Text>{allUsers[uid].name} </Text>
                 </Card>
               );
             })}
