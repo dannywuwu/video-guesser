@@ -33,8 +33,6 @@ const Lobby = () => {
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
 
-  console.log("LOBBY TIME USER", user);
-
   // listen and render users
   useEffect(() => {
     if (socket) {

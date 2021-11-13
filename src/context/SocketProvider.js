@@ -7,15 +7,16 @@ export function useSocket() {
   return useContext(SocketContext);
 }
 export function SocketProvider({ children }) {
-  const [clientSocket, setSocket] = useState();
+  const [clientSocket, setClientSocket] = useState();
 
+  // sets clientSocket after server ack
   useEffect(() => {
     const tempSocket = io("http://localhost:5000");
     tempSocket.on(
       "connect",
       () => {
-        console.log(tempSocket.id);
-        setSocket(tempSocket);
+        console.log("Connect", tempSocket.id);
+        setClientSocket(tempSocket);
       },
       []
     );
@@ -25,6 +26,12 @@ export function SocketProvider({ children }) {
       tempSocket.off();
     };
   }, []);
+
+  // debug client socket
+  useEffect(() => {
+    console.log("client socket", clientSocket);
+  }, [clientSocket]);
+
   return (
     <SocketContext.Provider value={clientSocket}>
       {children}

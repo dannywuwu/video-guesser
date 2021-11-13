@@ -21,7 +21,6 @@ const Home = () => {
   const onFinish = (value) => {
     const { formUser } = value;
     const { name, room } = formUser;
-    console.log("fin");
 
     // ensure that we have established a websocket connection with server before continuing
 
