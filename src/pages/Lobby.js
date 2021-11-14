@@ -33,6 +33,27 @@ const Lobby = () => {
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
 
+  // user join/leave
+  useEffect(() => {
+    if (socket) {
+      console.log("joining room as ", user);
+      // user joins a room
+      socket.emit("join-room", user.name, user.room, (users) => {
+        // get all users in room
+        setAllUsers(users);
+      });
+
+      // emits leave-room when user leaves
+      return () => {
+        socket.emit("leave-room", user.room, (users) => {
+          console.log(socket.id, " unmounted ", users);
+        });
+        // re-render ready users
+        setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
+      };
+    }
+  }, []);
+
   // listen and render users
   useEffect(() => {
     if (socket) {
@@ -41,6 +62,7 @@ const Lobby = () => {
       });
       console.log("new users");
     }
+    console.log("all users", allUsers);
   }, [allUsers]);
 
   // player is ready
@@ -60,34 +82,19 @@ const Lobby = () => {
           setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
         }
       });
-      // all players are ready, game start
-      if (readyUsers.length === Object.keys(allUsers).length) {
+      // all players are ready, game start - need at least 2 players
+      if (
+        allUsers.length > 1 &&
+        readyUsers.length === Object.keys(allUsers).length
+      ) {
+        debugger;
+        console.log("we countin down");
         setCountDown(true);
       } else {
         setCountDown(false);
       }
     }
   }, [readyUsers]);
-
-  // user join/leave
-  useEffect(() => {
-    if (socket) {
-      console.log("joining room as ", user);
-      // user joins a room
-      socket.emit("join-room", user.name, user.room, (users) => {
-        console.log("users in room", users);
-      });
-
-      // emits leave-room when user leaves
-      return () => {
-        socket.emit("leave-room", user.room, (users) => {
-          console.log(socket.id, " unmounted ", users);
-        });
-        // re-render ready users
-        setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
-      };
-    }
-  }, []);
 
   let readyText;
   if (isReady) {
@@ -105,10 +112,13 @@ const Lobby = () => {
       >
         <Col xs={24} className="gutter-row">
           <Title
-            style={{ textAlign: "center", marginBottom: "40px" }}
+            style={{ textAlign: "center", marginBottom: "1rem" }}
             level={3}
           >
-            {user.room}
+            Room - {user.room}
+          </Title>
+          <Title style={{ textAlign: "center", marginBottom: "5vh" }} level={4}>
+            User - {user.name} {user.id}
           </Title>
           {Object.keys(allUsers).length !== 0 &&
             Object.keys(allUsers).map((uid, index) => {
