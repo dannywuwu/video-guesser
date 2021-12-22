@@ -85,6 +85,7 @@ io.on("connection", (socket: any) => {
   socket.on(
     "join-room",
     (name: string, room: string, callback: (users: Users) => Users) => {
+
       // subscribe user socket to room
       socket.join(room);
       console.log(`${name} has joined room: ${room}`);
@@ -128,9 +129,12 @@ io.on("connection", (socket: any) => {
     "leave-room",
     (
       room: Room,
+      user: User,
       callback: (f: (rooms: Rooms, room: string) => Users) => void
     ) => {
-      console.log(uid + " has left " + room);
+      console.log("leave-room", user)
+      console.log("PENISPENISPENISPENIS")
+      console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
       leaveRoom(clientUser, rooms, uid);
       // logging message for testing
@@ -144,11 +148,13 @@ io.on("connection", (socket: any) => {
   socket.on("disconnect", () => {
     // remove user from users, then update client
     console.log(`${uid} has left`);
-    const room = getRoom(users, uid);
     // remove user from user and readyusers(if applicable) list
-    leaveRoom(clientUser, rooms, uid);
-    users = removeUser(users, uid);
-    io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+    if (clientUser) {
+      const room = getRoom(users, uid);
+      leaveRoom(clientUser, rooms, uid);
+      users = removeUser(users, uid);
+      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+    }
   });
 });
 
