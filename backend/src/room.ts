@@ -11,16 +11,11 @@ type Rooms = Record<string, Room>;
 const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   const uid = user.id;
   // if room exists, add user
+  console.log("addUserToRoom", rooms[room])
   if (rooms[room]) {
-    // if user already in room, remove current room
-    if (user.room != undefined) {
-      leaveRoom(user, rooms);
-    }
     rooms[room] = {
       ...rooms[room],
-      users: {
-        [uid]: user,
-      },
+      users: {...rooms[room].users, [uid]: user},
     };
   } else {
     // new room containing only user starting at turn 0
@@ -35,6 +30,8 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   // mutate user
   user.room = room;
   user.position = Object.keys(getUsersInRoom(rooms, room)).length;
+  // 
+  // console.log("addUserToRoom", rooms)
 };
 
 // gets users map inside a particular room
@@ -51,7 +48,7 @@ const getRoomTurn = (rooms: Rooms, room: string): number => {
 const leaveRoom = (user: User, rooms: Rooms): void => {
   // assert room is defined
   // delete yourself from the room
-  console.log("leaveroom", user, rooms)
+
   delete rooms[user.id];
   // you are now nameless and without room/board
   user.name = undefined;
