@@ -94,6 +94,7 @@ io.on("connection", (socket: any) => {
       setName(users, name, uid);
       // updates rooms and user.room and emit it to all the users in that room
       addUserToRoom(rooms, room, clientUser);
+      console.log("join-room", rooms)
       io.to(room).emit("display-users", getUsersInRoom(rooms, room));
       // send users in room back to client
       callback(getUsersInRoom(rooms, room));
@@ -135,8 +136,8 @@ io.on("connection", (socket: any) => {
     ) => {
       console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
-      console.log("leave-room", clientUser, rooms) 
       leaveRoom(clientUser, rooms, uid);
+      removeUser(users, uid);
       // logging message for testing
       callback(getUsersInRoom(rooms, room));
       // rerender user display
