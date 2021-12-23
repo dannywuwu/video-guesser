@@ -2,7 +2,7 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-export {}; // fixes 'Cannot redeclare block-scoped variable 'fetch'.ts(2451)' warning
+export {}; // fixes 'Cannot redeclare block-scoped let iable 'fetch'.ts(2451)' warning
 import express from "express";
 
 const fetch = require("node-fetch");
@@ -37,8 +37,8 @@ const {
   getUsersInRoom,
 } = require("../build/room.js");
 
-var users: Users = {}; // user id -> user objects
-var rooms: Rooms = {}; // room id -> room objects
+let users: Users = {}; // user id -> user objects
+let rooms: Rooms = {}; // room id -> room objects
 
 // creates user and adds them to Users and Rooms
 const createUser = (
@@ -73,7 +73,7 @@ io.on("connection", (socket: any) => {
         throw "set-user id is not uid";
       }
       // create user object
-      clientUser = userFactory(id, name, room)
+      clientUser = userFactory(id, name, room);
       // add user to users{} dict
       addUserToUsers(users, clientUser, uid);
       console.log(uid + " has connected");
@@ -85,7 +85,6 @@ io.on("connection", (socket: any) => {
   socket.on(
     "join-room",
     (name: string, room: string, callback: (users: Users) => Users) => {
-
       // subscribe user socket to room
       socket.join(room);
       console.log(`${name} has joined room: ${room}`);
@@ -94,7 +93,6 @@ io.on("connection", (socket: any) => {
       setName(users, name, uid);
       // updates rooms and user.room and emit it to all the users in that room
       addUserToRoom(rooms, room, clientUser);
-      console.log("join-room", rooms)
       io.to(room).emit("display-users", getUsersInRoom(rooms, room));
       // send users in room back to client
       callback(getUsersInRoom(rooms, room));
@@ -110,20 +108,35 @@ io.on("connection", (socket: any) => {
   });
 
   // choosing the chooser phase
-  socket.on("choose-chooser", (roomID: number) => {
-    console.log("choosing chooser for " + roomID);
+  socket.on("choose-chooser", (roomName: string) => {
     // increment the turn counter for this room
-    const roomTurn = ++rooms[roomID].turn;
-    const roomUsers = getUsersInRoom(rooms, roomID);
+    const roomTurn = ++rooms[roomName].turn;
+    const roomUsers = getUsersInRoom(rooms, roomName);
     // chooser ID from [1, # users in room]
-    const newChooserID = roomUsers.find(
-      (user: User) => user.position == roomTurn % roomUsers.length
+    let newChooserID;
+    console.log(
+      "choose-chooser",
+      Object.keys(roomUsers),
+      Object.keys(roomUsers).length
     );
-    console.log("new chooser is " + newChooserID);
+    for (const userID in roomUsers) {
+      console.log(
+        "choose-chooser",
+        roomUsers[userID].position,
+        roomTurn % Object.keys(roomUsers).length
+      );
+      if (
+        roomUsers[userID].position ===
+        roomTurn % Object.keys(roomUsers).length
+      ) {
+        newChooserID = userID;
+      }
+    }
     // update chooser for room
     const newChooser = getUser(users, newChooserID);
-    rooms[roomID].chooser = newChooser;
-    io.to(roomID).emit("chooser-chosen", newChooser);
+    console.log("new chooser is " + newChooserID, newChooser);
+    rooms[roomName].chooser = newChooser;
+    io.to(roomName).emit("chooser-chosen", newChooser);
   });
 
   // user leave room
@@ -152,7 +165,7 @@ io.on("connection", (socket: any) => {
     // remove user from user and readyusers(if applicable) list
     if (clientUser) {
       const room = getRoom(users, uid);
-      console.log("disconnect", clientUser, rooms) 
+      console.log("disconnect", clientUser, rooms);
       leaveRoom(clientUser, rooms, uid);
       users = removeUser(users, uid);
       io.to(room).emit("display-users", getUsersInRoom(rooms, room));

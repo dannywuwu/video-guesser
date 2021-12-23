@@ -5,15 +5,25 @@ import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
 
-const Game = () => {
-  const [chooser, setChooser] = useState({});
+const defaultChooserModel = {
+  id: "",
+  name: "defaultName",
+  points: 0,
+  room: ""
+}
 
+
+const Game = () => {
+  // loadinng context
+  const socket = useSocket();
+  const { user, setUser, allUsers } = useUser();
+
+  // 
+  const [chooser, setChooser] = useState(defaultChooserModel);
   // phase toggle: 'search', 'guess', 'score'
   // initially search
   const [phase, setPhase] = useState("search");
 
-  const socket = useSocket();
-  const userContext = useUser();
 
   // clear state for next round
   const nextRound = () => {
@@ -33,8 +43,10 @@ const Game = () => {
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
+    console.log(socket)
     if (socket) {
-      socket.emit("choose-chooser", socket.id);
+      console.log(user)
+      socket.emit("choose-chooser", user.room);
     }
   }, []);
 
@@ -42,7 +54,12 @@ const Game = () => {
   useEffect(() => {
     if (socket) {
       socket.once("chooser-chosen", (newChooser) => {
-        setChooser(newChooser);
+        if (newChooser) {
+          setChooser(newChooser);
+
+        } else {
+          console.log("newChooser is null")
+        }
       });
     }
   }, [chooser]);
@@ -55,11 +72,11 @@ const Game = () => {
   // give points to selected players
   // called once Chooser submits correct players
   const updatePoints = () => {};
-
+  console.log(chooser)
   // redirect if socket undefined
   return socket ? (
     <div>
-      <h1>chooser is {chooser.id}</h1>
+      {/* <h1>chooser is {chooser.id}</h1> */}
       <VideoPlayer
         style={{
           visibility: isChooser() || phase === "score" ? "visible" : "hidden",
@@ -74,7 +91,7 @@ const Game = () => {
       </h3>
       <h1>game</h1>
       <UserList
-        users={Object.values(userContext.allUsers)}
+        users={Object.values(allUsers)}
         phase={phase}
         submitSelected={submitSelected}
       />

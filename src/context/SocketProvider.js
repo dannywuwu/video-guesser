@@ -28,9 +28,9 @@ export function SocketProvider({ children }) {
   }, []);
 
   // debug client socket
-  useEffect(() => {
-    console.log("client socket", clientSocket);
-  }, [clientSocket]);
+  // useEffect(() => {
+  //   console.log("client socket", clientSocket);
+  // }, [clientSocket]);
 
   return (
     <SocketContext.Provider value={clientSocket}>

@@ -1,5 +1,6 @@
 // room room!
 type Room = {
+  rName: string;
   users: Users;
   turn: number;
   chooser?: User;
@@ -11,7 +12,6 @@ type Rooms = Record<string, Room>;
 const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   const uid = user.id;
   // if room exists, add user
-  console.log("addUserToRoom", rooms[room]);
   if (rooms[room]) {
     rooms[room] = {
       ...rooms[room],
@@ -20,6 +20,7 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   } else {
     // new room containing only user starting at turn 0
     rooms[room] = {
+      rName: room,
       users: {
         [uid]: user,
       },
@@ -29,9 +30,8 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
   }
   // mutate user
   user.room = room;
-  user.position = Object.keys(getUsersInRoom(rooms, room)).length;
-  //
-  // console.log("addUserToRoom", rooms)
+  // position starts at 0
+  user.position = Object.keys(getUsersInRoom(rooms, room)).length - 1;
 };
 
 // gets users map inside a particular room
@@ -55,7 +55,7 @@ const leaveRoom = (user: User, rooms: Rooms): void => {
   const room = rooms[user.room];
   const users = room.users;
   delete users[user.id]
-  console.log(`deleted ${user.name} from ${room}`)
+  console.log(`deleted ${user.name} from ${room.rName}`)
   // you are now nameless and without room/board
   user.name = undefined;
   user.room = undefined;

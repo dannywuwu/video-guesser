@@ -45,11 +45,14 @@ const Lobby = () => {
 
       // emits leave-room when user leaves
       return () => {
-        socket.emit("leave-room", user.room, (users) => {
-          console.log(socket.id, " unmounted ", users);
-        });
-        // re-render ready users
-        setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
+        // if we're not going to the game, don't remove the user from the room
+        if (!readyUsers.length === Object.keys(allUsers).length) {
+          socket.emit("leave-room", user.room, user, (users) => {
+            console.log(socket.id, " unmounted ", users);
+          });
+          // re-render ready users
+          setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
+        }
       };
     }
   }, []);
@@ -60,9 +63,7 @@ const Lobby = () => {
       socket.on("display-users", (users) => {
         setAllUsers(users);
       });
-      console.log("new users");
     }
-    console.log("all users", allUsers);
   }, [allUsers]);
 
   // player is ready
@@ -75,7 +76,7 @@ const Lobby = () => {
   // fetch ready players and render ready
   useEffect(() => {
     if (socket) {
-      socket.on("get-ready-players", (user, ready) => {
+      socket.once("get-ready-players", (user, ready) => {
         if (ready) {
           setReadyUsers((prev) => [...new Set([...prev, user])]);
         } else {
@@ -83,13 +84,10 @@ const Lobby = () => {
         }
       });
       // all players are ready, game start - need at least 2 players
-      if (
-        allUsers.length > 1 &&
-        readyUsers.length === Object.keys(allUsers).length
-      ) {
-        debugger;
-        console.log("we countin down");
-        setCountDown(true);
+      if (readyUsers.length === Object.keys(allUsers).length) {
+        // debugger;
+        history.push("/game")
+        // setCountDown(true);
       } else {
         setCountDown(false);
       }
