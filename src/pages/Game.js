@@ -4,26 +4,25 @@ import { useUser } from "../context/UserProvider";
 import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
-
+import "../styles/game/gamePageStyles.css";
+import { Input } from "antd";
 const defaultChooserModel = {
   id: "",
   name: "defaultName",
   points: 0,
-  room: ""
-}
-
+  room: "",
+};
 
 const Game = () => {
   // loadinng context
   const socket = useSocket();
   const { user, setUser, allUsers } = useUser();
 
-  // 
+  //
   const [chooser, setChooser] = useState(defaultChooserModel);
   // phase toggle: 'search', 'guess', 'score'
   // initially search
   const [phase, setPhase] = useState("search");
-
 
   // clear state for next round
   const nextRound = () => {
@@ -43,9 +42,9 @@ const Game = () => {
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
-    console.log(socket)
+    console.log(socket);
     if (socket) {
-      console.log(user)
+      console.log(user);
       socket.emit("choose-chooser", user.room);
     }
   }, []);
@@ -56,9 +55,8 @@ const Game = () => {
       socket.once("chooser-chosen", (newChooser) => {
         if (newChooser) {
           setChooser(newChooser);
-
         } else {
-          console.log("newChooser is null")
+          console.log("newChooser is null");
         }
       });
     }
@@ -72,29 +70,36 @@ const Game = () => {
   // give points to selected players
   // called once Chooser submits correct players
   const updatePoints = () => {};
-  console.log(chooser)
+  console.log(chooser);
   // redirect if socket undefined
   return socket ? (
-    <div>
+    <div className="game-root">
       {/* <h1>chooser is {chooser.id}</h1> */}
-      <VideoPlayer
-        style={{
-          visibility: isChooser() || phase === "score" ? "visible" : "hidden",
-        }}
-      />
-      <h3
-        style={{
-          visibility: isChooser() ? "hidden" : "visible",
-        }}
-      >
-        if you are not a chooser you can see this
-      </h3>
-      <h1>game</h1>
-      <UserList
-        users={Object.values(allUsers)}
-        phase={phase}
-        submitSelected={submitSelected}
-      />
+      {/* <h3
+          style={{
+            visibility: isChooser() ? "hidden" : "visible",
+          }}
+        >
+          if you are not a chooser you can see this
+        </h3> */}
+      <div className="game-videoContainer">
+        <VideoPlayer
+          style={{
+            visibility: isChooser() || phase === "score" ? "visible" : "hidden",
+          }}
+        />
+      </div>
+      <div className="game-guessContainer">
+        <Input defaultValue="" allowClear/>
+      </div>
+
+      <div className="game-allUsersContainer">
+        <UserList
+          users={Object.values(allUsers)}
+          phase={phase}
+          submitSelected={submitSelected}
+        />
+      </div>
     </div>
   ) : (
     <Redirect to="/" />

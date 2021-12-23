@@ -20,11 +20,11 @@ const UserList = (props) => {
   };
   return (
     <>
-      <div className="site-card-wrapper">
-        <Row gutter={12}>
+      <div>
+        <Row justify="center" gutter={[20, 16]}>
           {users.map((user) => {
             return (
-              <Col span={4} key={user.id}>
+              <Col key={user.id} span={6}>
                 <UserCard
                   key={user.id}
                   name={user.name}

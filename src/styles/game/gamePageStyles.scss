@@ -1,0 +1,12 @@
+.game-root {
+    display: flex;
+    flex-direction: column;
+    .game-guessContainer {
+        input {
+            text-align: center
+        }
+    }   
+    > div {
+        margin: 10px 0;
+    }
+}
