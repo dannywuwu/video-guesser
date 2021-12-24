@@ -13,6 +13,7 @@ import {
   startVideo,
 } from "../actions/gameActions";
 import GameTest from "../components/GameTest";
+
 const defaultChooserModel = {
   id: "",
   position: 0,
@@ -82,14 +83,17 @@ const Game = () => {
     }
   }, [allUsers]);
 
+  // console.log(isChooser(socket.id, chooser.id))
   // listen to above emit
   useEffect(() => {
     if (socket) {
+      console.log(isChooser(socket.id, chooser.id), socket.id, chooser.id)
       socket.once("chooser-chosen", (newChooser) => {
         if (newChooser) {
           setChooser(newChooser);
           console.log("you", user);
-          console.log("newChooser", chooser);
+          console.log("newChooser", newChooser);
+          
         } else {
           console.log("newChooser is null");
         }
@@ -97,7 +101,6 @@ const Game = () => {
     }
   }, [chooser]);
 
-  // console.log("isChooser", isChooser())
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
@@ -127,7 +130,7 @@ const Game = () => {
         />
       </div>
       <div className="game-guessContainer">
-        {isChooser() ? <GameTest /> : <Input defaultValue="" allowClear />}
+        {isChooser(socket.id, chooser.id) ? <GameTest /> : <Input defaultValue="" allowClear />}
       </div>
 
       <div className="game-allUsersContainer">
