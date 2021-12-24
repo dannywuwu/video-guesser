@@ -5,30 +5,49 @@ import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
 import "../styles/game/gamePageStyles.css";
-import { Input } from "antd";
+import { Input, Progress } from "antd";
 const defaultChooserModel = {
   id: "",
+  position: 0,
   name: "defaultName",
-  points: 0,
   room: "",
+  points: 0,
+  
+
 };
+
+
+const videoTime = 3;
 
 const Game = () => {
   // loadinng context
   const socket = useSocket();
   const { user, setUser, allUsers } = useUser();
-
   //
   const [chooser, setChooser] = useState(defaultChooserModel);
   // phase toggle: 'search', 'guess', 'score'
   // initially search
   const [phase, setPhase] = useState("search");
-
+  const [progress, setProgress] = useState({percent: 0, intervalID: 0});
   // clear state for next round
   const nextRound = () => {
     // emit events TODO
     // reset user search, guesses
   };
+
+  const startVideo = () => {
+    // start the video and the timer
+    const interval = setInterval(() => {
+      if (progress >= videoTime) {
+        clearInterval(interval)
+      }
+      setProgress(prev => ({...prev, percent: prev["percent"] + 0.1}))
+    }
+    , 100)
+    setProgress(prev => ({...prev, intervalID: interval}))
+  }
+
+  console.log("interval", progress, progress >= videoTime)
 
   // mutate users in context
   const chooseChooser = () => {
@@ -39,10 +58,21 @@ const Game = () => {
     console.log("submitted");
   };
 
+  // check if the progress is at 100 and clears the interval if so
+  useEffect(() => {
+    if (progress["percent"] >= videoTime) {
+      clearInterval(progress["intervalID"])
+      console.log("interval cleared")
+    }
+  }, [progress])
+
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
-    console.log(socket);
+    console.log("GAMEJS", socket);
+
+    // start video here just for debugging purposes
+    startVideo();
     if (socket) {
       console.log(user);
       socket.emit("choose-chooser", user.room);
@@ -74,6 +104,9 @@ const Game = () => {
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
+      <div className="game-progressBar">
+        <Progress percent={(progress["percent"]/videoTime) * 100} showInfo={false}/>
+      </div>
       {/* <h1>chooser is {chooser.id}</h1> */}
       {/* <h3
           style={{
