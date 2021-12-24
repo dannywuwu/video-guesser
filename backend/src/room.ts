@@ -19,6 +19,8 @@ const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
     };
   } else {
     // new room containing only user starting at turn 0
+    console.log("new room", room);
+
     rooms[room] = {
       users: {
         [uid]: user,
@@ -54,8 +56,8 @@ const leaveRoom = (user: User, rooms: Rooms): void => {
 
   const room = rooms[user.room];
   const users = room.users;
-  delete users[user.id]
-  console.log(`deleted ${user.name} from ${room}`)
+  delete users[user.id];
+  console.log(`deleted ${user.name} from ${room}`);
   // you are now nameless and without room/board
   user.name = undefined;
   user.room = undefined;
