@@ -35,6 +35,8 @@ const {
   getRoomTurn,
   leaveRoom,
   getUsersInRoom,
+  deleteRoom,
+  leaveRoomBig,
 } = require("../build/room.js");
 
 let users: Users = {}; // user id -> user objects
@@ -111,6 +113,7 @@ io.on("connection", (socket: any) => {
   socket.on("choose-chooser", (roomName: string) => {
     // increment the turn counter for this room
     const roomTurn = ++rooms[roomName].turn;
+    console.log("roomTurn", roomTurn);
     const roomUsers = getUsersInRoom(rooms, roomName);
     // chooser ID from [1, # users in room]
     let newChooserID;
@@ -143,18 +146,15 @@ io.on("connection", (socket: any) => {
   socket.on(
     "leave-room",
     (
-      room: Room,
+      rName: string,
       user: User,
       callback: (f: (rooms: Rooms, room: string) => Users) => void
     ) => {
+      const room = rooms[rName];
       console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
-      leaveRoom(clientUser, rooms, uid);
+      leaveRoomBig(clientUser, users, room, rooms, uid, io);
       removeUser(users, uid);
-      // logging message for testing
-      callback(getUsersInRoom(rooms, room));
-      // rerender user display
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
     }
   );
 
@@ -164,11 +164,11 @@ io.on("connection", (socket: any) => {
     console.log(`${uid} has left`);
     // remove user from user and readyusers(if applicable) list
     if (clientUser) {
-      const room = getRoom(users, uid);
+      const rName = getRoom(users, uid);
+      const room = rooms[rName]
       console.log("disconnect", clientUser, rooms);
-      leaveRoom(clientUser, rooms, uid);
-      users = removeUser(users, uid);
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+      leaveRoomBig(clientUser, users, room, rooms, uid, io);
+      removeUser(users, uid);
     }
   });
 });

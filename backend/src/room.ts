@@ -61,9 +61,32 @@ const leaveRoom = (user: User, rooms: Rooms): void => {
   user.room = undefined;
 };
 
+const deleteRoom = (room: Room, rooms: Rooms): Rooms => {
+  delete rooms[room.rName]
+  return rooms
+}
+
+const leaveRoomBig = (user: User, users: Users, room: Room, rooms: Rooms, uid: string, io: any): void => {
+  console.log(room, room.users)
+  console.log(Object.keys(room.users).length, Object.keys(room.users).length === 0)
+  leaveRoom(user, rooms);
+  console.log("remaining users", room.users)
+  if (Object.keys(room.users).length === 0) {
+    const updatedRooms = deleteRoom(room, rooms)
+    console.log("deleted room", updatedRooms)
+  } else {
+    // rerender user display
+    io.to(room).emit("display-users", getUsersInRoom(rooms, room.rName));
+  }
+}
+
+
+
 module.exports = {
   addUserToRoom,
   leaveRoom,
   getRoomTurn,
   getUsersInRoom,
+  deleteRoom,
+  leaveRoomBig
 };

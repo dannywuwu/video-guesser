@@ -1,6 +1,6 @@
 import { Button, Modal } from 'antd'
 import React, {useState} from 'react'
-import SearchContainer from '../components/SearchContainer'
+import SearchContainer from './SearchContainer'
 
 const GameTest = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);

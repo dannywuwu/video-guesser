@@ -32,24 +32,24 @@ const Lobby = () => {
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
-
+  const [redirect, setRedirect] = useState(false)
   // user join/leave
   useEffect(() => {
     if (socket) {
-      console.log("joining room as ", user);
       // user joins a room
       socket.emit("join-room", user.name, user.room, (users) => {
         // get all users in room
+        console.log("joining room as ", user);
         setAllUsers(users);
       });
 
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
-        if (!readyUsers.length === Object.keys(allUsers).length) {
-          socket.emit("leave-room", user.room, user, (users) => {
-            console.log(socket.id, " unmounted ", users);
-          });
+        if (readyUsers.length !== Object.keys(allUsers).length) {
+          console.log("lobbyks leave-room", readyUsers, Object.keys(allUsers));
+          // console.log("socket.emit leave-room", u)
+          socket.emit("leave-room", user.room, user);
           // re-render ready users
           setReadyUsers((prev) => prev.filter((v) => v.id !== user.id));
         }
@@ -86,7 +86,8 @@ const Lobby = () => {
       // all players are ready, game start - need at least 2 players
       if (readyUsers.length === Object.keys(allUsers).length) {
         // debugger;
-        history.push("/game")
+        console.log("game start");
+        setRedirect(true)
         // setCountDown(true);
       } else {
         setCountDown(false);
@@ -103,6 +104,7 @@ const Lobby = () => {
   // redirect if socket undefined
   return socket ? (
     <div>
+      {redirect && <Redirect to="/game" />}
       <Row
         align="middle"
         justify="center"
