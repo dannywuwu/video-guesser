@@ -12,7 +12,7 @@ const defaultChooserModel = {
   name: "defaultName",
   room: "",
   points: 0,
-  
+  guess: ""
 
 };
 
@@ -46,8 +46,6 @@ const Game = () => {
     , 100)
     setProgress(prev => ({...prev, intervalID: interval}))
   }
-
-  console.log("interval", progress, progress >= videoTime)
 
   // mutate users in context
   const chooseChooser = () => {
@@ -115,7 +113,7 @@ const Game = () => {
         >
           if you are not a chooser you can see this
         </h3> */}
-      <div className="game-videoContainer">
+      <div className="game-videoContainer" style={{background: "#ddd"}}>
         <VideoPlayer
           style={{
             visibility: isChooser() || phase === "score" ? "visible" : "hidden",
@@ -128,6 +126,7 @@ const Game = () => {
 
       <div className="game-allUsersContainer">
         <UserList
+          chooser={chooser}
           users={Object.values(allUsers)}
           phase={phase}
           submitSelected={submitSelected}

@@ -4,7 +4,7 @@ import UserCard from "./UserCard";
 import { Col, Row, Button } from "antd";
 
 const UserList = (props) => {
-  const { users, phase, submitSelected } = props;
+  const { users, phase, submitSelected, chooser } = props;
 
   // user.id -> selected status (bool)
   const selectedUsers = {};
@@ -26,6 +26,7 @@ const UserList = (props) => {
             return (
               <Col key={user.id} span={6}>
                 <UserCard
+                  isChooser={chooser.id === user.id}
                   key={user.id}
                   name={user.name}
                   points={user.points}
