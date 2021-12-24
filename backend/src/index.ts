@@ -73,7 +73,7 @@ io.on("connection", (socket: any) => {
         throw "set-user id is not uid";
       }
       // create user object
-      clientUser = userFactory(id, name, room);
+      clientUser = userFactory(id, name, room)
       // add user to users{} dict
       addUserToUsers(users, clientUser, uid);
       console.log(uid + " has connected");
@@ -85,14 +85,17 @@ io.on("connection", (socket: any) => {
   socket.on(
     "join-room",
     (name: string, room: string, callback: (users: Users) => Users) => {
+
       // subscribe user socket to room
       socket.join(room);
       console.log(`${name} has joined room: ${room}`);
 
       // updates user.name
       setName(users, name, uid);
-      // updates rooms and user.room
+      // updates rooms and user.room and emit it to all the users in that room
       addUserToRoom(rooms, room, clientUser);
+      console.log("join-room", rooms)
+      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
       // send users in room back to client
       callback(getUsersInRoom(rooms, room));
     }
@@ -128,11 +131,13 @@ io.on("connection", (socket: any) => {
     "leave-room",
     (
       room: Room,
+      user: User,
       callback: (f: (rooms: Rooms, room: string) => Users) => void
     ) => {
-      console.log(uid + " has left " + room);
+      console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
       leaveRoom(clientUser, rooms, uid);
+      removeUser(users, uid);
       // logging message for testing
       callback(getUsersInRoom(rooms, room));
       // rerender user display
@@ -144,11 +149,14 @@ io.on("connection", (socket: any) => {
   socket.on("disconnect", () => {
     // remove user from users, then update client
     console.log(`${uid} has left`);
-    const room = getRoom(users, uid);
     // remove user from user and readyusers(if applicable) list
-    leaveRoom(clientUser, rooms, uid);
-    users = removeUser(users, uid);
-    io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+    if (clientUser) {
+      const room = getRoom(users, uid);
+      console.log("disconnect", clientUser, rooms) 
+      leaveRoom(clientUser, rooms, uid);
+      users = removeUser(users, uid);
+      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+    }
   });
 });
 
