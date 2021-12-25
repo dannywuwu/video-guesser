@@ -1,29 +1,38 @@
 import { React, useState } from "react";
 import ReactPlayer from "react-player/youtube";
+import { Button } from "antd";
 import SearchContainer from "./SearchContainer";
 
-// TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
   const { url, searchPhase } = props;
 
+  // playing/paused
   const [playing, setPlaying] = useState(false);
+  // reference to reactplayer
   const [ref, setRef] = useState(null);
-  // fraction percentage of current video duration played
-  const [played, setPlayed] = useState(0);
-  const [duration, setDuration] = useState(0);
+  // timestamps for play start/end
   const [playStart, setPlayStart] = useState(0);
   const [playEnd, setPlayEnd] = useState(0);
+  // progress obj
+  const [progress, setProgress] = useState(null);
+  // video buffer state
+  const [bufferStatus, setBufferStatus] = useState(false);
 
   const seek = (time) => {
     ref.seekTo(time, "seconds");
   };
 
-  handleDuration = (_duration) => {
-    setDuration(_duration);
+  const handleProgress = (_progress) => {
+    setProgress(_progress);
   };
 
-  handlePlaying = () => {
+  const handlePlaying = () => {
     setPlaying(!playing);
+  };
+
+  // set play start time to current progress time
+  const handleStart = () => {
+    setPlayStart(progress.playedSeconds);
   };
 
   return (
@@ -36,9 +45,17 @@ const VideoPlayer = (props) => {
             ref={setRef}
             url={url}
             playing={playing}
-            onDuration={handleDuration}
+            onProgress={handleProgress}
+            onStart={handleStart}
+            onBuffer={() => setBufferStatus(true)}
+            onBufferEnd={() => setBufferStatus(false)}
           />
-          {played * duration}
+          <div className="player-controls">
+            <Button onClick={handlePlaying}>
+              {playing ? "Pause" : "Play"}
+            </Button>
+            <Button onClick={() => seek(5)}>seek</Button>
+          </div>
         </div>
       )}
     </div>
