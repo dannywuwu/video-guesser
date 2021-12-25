@@ -11,7 +11,7 @@ export const isChooser = (socketID, chooserID) => {
 // called once Chooser submits correct players
 export const updatePoints = () => {};
 
-export const startVideo = (progress, setProgress, videoTime) => {
+export const startVideoTimer = (progress, setProgress, videoTime) => {
 	setProgress({percent: 0, intervalID: 0})
   // start the video and the timer
   const interval = setInterval(() => {

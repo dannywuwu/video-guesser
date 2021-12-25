@@ -4,57 +4,77 @@ import { useUser } from "../context/UserProvider";
 import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
+import { Button } from "antd";
 import "../styles/game/gamePageStyles.css";
-import { Input, Progress } from "antd";
+import { AutoComplete, Input, Progress } from "antd";
 import {
   isChooser,
   updateChooser,
   updatePoints,
-  startVideo,
+  startVideoTimer,
 } from "../actions/gameActions";
-import GameTest from "../components/GameTest";
+import SelectVideo from "../components/SelectVideo";
+import { useRoom, defaultChooserModel } from "../context/RoomProvider";
 
-const defaultChooserModel = {
-  id: "",
-  position: 0,
-  name: "defaultName",
-  room: "",
-  points: 0,
-  guess: "",
+const defaultVideoModel = {
+  title: "title",
+  channelTitle: "channelTitle",
+  url: "",
+  videoId: "videoID",
 };
-
-const videoTime = 3;
+// config, this is gonna be a state itself in the future, so users can configure the game settings
+const videoTime = 15;
 
 const Game = () => {
-  // loadinng context
+  // loadinng contexts
   const socket = useSocket();
   const { user, setUser, allUsers, setAllUsers } = useUser();
-  //
-  const [chooser, setChooser] = useState(defaultChooserModel);
+  const { room, setRoom } = useRoom();
+
+  // the user that's choosing the video
+  const chooser = room.chooser || defaultChooserModel;
   // phase toggle: 'search', 'guess', 'score'
-  // initially search
-  const [phase, setPhase] = useState("search");
+  const phase = room.phase;
+
+  // the progress bar at the top
   const [progress, setProgress] = useState({ percent: 0, intervalID: 0 });
+  // the selected video
+  const [selectedVideo, setSelectedVideo] = useState(defaultVideoModel);
+
+  const setChooser = (newChooser) => {
+    setRoom((prev) => ({ ...prev, chooser: newChooser }));
+    console.log("chooser", chooser);
+  };
+
+  const setPhase = (newPhase) => {
+    setRoom((prev) => ({ ...prev, phase: newPhase }));
+    console.log("chooser", chooser);
+  };
+
+  useEffect(() => {
+    console.log(room);
+  }, [room]);
+
   // clear state for next round
   const nextRound = () => {
     // emit events TODO
     // reset user search, guesses
+    setSelectedVideo(defaultVideoModel);
+    handleGuess(defaultChooserModel.guess);
   };
 
   const submitSelected = () => {
     console.log("submitted");
   };
 
-  const handleGuess = (e) => {
-    const value = e.target.value
-    socket.emit("update-guess", value)
-  }
+  const handleGuess = (value) => {
+    socket.emit("update-guess", value);
+  };
   // check if the progress is at 100 and clears the interval if so
   useEffect(() => {
     if (progress["percent"] >= videoTime) {
       clearInterval(progress["intervalID"]);
-      console.log("interval cleared", progress["intervalID"]);
-      // startVideo(progress, setProgress, videoTime)
+      setPhase("score");
     }
   }, [progress]);
 
@@ -63,9 +83,8 @@ const Game = () => {
     // send user id to choose-chooser
     console.log("GAMEJS", user);
 
-    // start video here just for debugging purposes
-    startVideo(progress, setProgress, videoTime);
     if (socket) {
+      // emits to the back, and updates the chosen user
       updateChooser(socket, user.room);
     }
 
@@ -78,27 +97,14 @@ const Game = () => {
     };
   }, []);
 
-  // update Users when they leave
-  useEffect(() => {
-    console.log("all users", allUsers)
-    if (socket) {
-      socket.on("display-users", (users) => {
-        setAllUsers(users);
-      });
-    }
-  }, [allUsers]);
-
-  // console.log(isChooser(socket.id, chooser.id))
   // listen to above emit
   useEffect(() => {
     if (socket) {
-      console.log(isChooser(socket.id, chooser.id), socket.id, chooser.id)
       socket.once("chooser-chosen", (newChooser) => {
         if (newChooser) {
           setChooser(newChooser);
           console.log("you", user);
           console.log("newChooser", newChooser);
-          
         } else {
           console.log("newChooser is null");
         }
@@ -106,6 +112,28 @@ const Game = () => {
     }
   }, [chooser]);
 
+  // update Users when they leave
+  useEffect(() => {
+    console.log("all users", allUsers);
+    if (socket) {
+      socket.on("display-users", (users) => {
+        setAllUsers(users);
+      });
+    }
+  }, [allUsers]);
+
+  // listen for phase changes
+  useEffect(() => {
+    console.log("current phase", phase);
+    if (phase === "search") {
+      // call nextRound() to reset all the states
+      nextRound();
+    } else if (phase === "guess") {
+      // start the video timer
+      startVideoTimer(progress, setProgress, videoTime);
+    } else {
+    }
+  }, [phase]);
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
@@ -124,18 +152,35 @@ const Game = () => {
         >
           if you are not a chooser you can see this
         </h3> */}
-      <div className="game-videoContainer" style={{ background: "#ddd" }}>
+      <div
+        className="game-videoContainer"
+        style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
+      >
         <VideoPlayer
           style={{
             visibility:
               isChooser(socket.id, chooser.id) || phase === "score"
                 ? "visible"
                 : "hidden",
+            background: "red",
           }}
         />
       </div>
       <div className="game-guessContainer">
-        {isChooser(socket.id, chooser.id) ? <GameTest /> : <Input  onPressEnter={handleGuess} defaultValue="" allowClear />}
+        {isChooser(socket.id, chooser.id) ? (
+          <SelectVideo
+            phase={phase} 
+            setPhase={setPhase}
+            setSelectedVideo={setSelectedVideo}
+          />
+        ) : (
+          <Input
+            disabled={phase === "guess" ? false : true}
+            onPressEnter={(e) => handleGuess(e.target.value)}
+            defaultValue=""
+            allowClear
+          />
+        )}
       </div>
 
       <div className="game-allUsersContainer">
@@ -145,6 +190,11 @@ const Game = () => {
           phase={phase}
           submitSelected={submitSelected}
         />
+        {phase === "score" && (
+          <Button type="primary" onClick={submitSelected}>
+            Submit
+          </Button>
+        )}
       </div>
     </div>
   ) : (

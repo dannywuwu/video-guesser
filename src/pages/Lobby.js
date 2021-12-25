@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
+import { useRoom } from "../context/RoomProvider";
 import Countdown from "react-countdown";
 import { Button, Card, Row, Col, Typography } from "antd";
 import { useHistory, Redirect } from "react-router";
@@ -26,8 +27,10 @@ const styles = {
 const Lobby = () => {
   const history = useHistory();
 
+  // contextx
   const socket = useSocket();
   const { user, setUser, allUsers, setAllUsers } = useUser();
+  const {room, setRoom} = useRoom();
   // state
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
@@ -65,6 +68,17 @@ const Lobby = () => {
       });
     }
   }, [allUsers]);
+
+  // listen and update the room
+  useEffect(() => {
+    console.log(room)
+    if (socket) {
+      socket.on("update-room", (newRoom) => {
+        setRoom(newRoom)
+      })
+      
+    }
+  }, [room])
 
   // player is ready
   useEffect(() => {

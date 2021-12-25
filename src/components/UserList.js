@@ -4,7 +4,7 @@ import UserCard from "./UserCard";
 import { Col, Row, Button } from "antd";
 
 const UserList = (props) => {
-  const { users, phase, submitSelected, chooser } = props;
+  const { users, phase, chooser } = props;
 
   // user.id -> selected status (bool)
   const selectedUsers = {};
@@ -38,11 +38,7 @@ const UserList = (props) => {
           })}
         </Row>
       </div>
-      {phase === "score" && (
-        <Button type="primary" onClick={submitSelected}>
-          Submit
-        </Button>
-      )}
+
     </>
   );
 };

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import SearchVideo from "../pages/SearchVideo";
+import SearchVideo from "./SearchVideo";
 
-const SearchContainer = () => {
+const SearchContainer = ({
+  setPhase,
+  setSelectedVideo,
+  setIsSearchVisible,
+}) => {
   return (
     <div>
-      <SearchVideo/>
+      <SearchVideo setIsSearchVisible={setIsSearchVisible} setPhase={setPhase} setSelectedVideo={setSelectedVideo} />
     </div>
   );
 };

@@ -86,18 +86,20 @@ io.on("connection", (socket: any) => {
   // user joins room
   socket.on(
     "join-room",
-    (name: string, room: string, callback: (users: Users) => Users) => {
+    (name: string, rName: string, callback: (users: Users) => Users) => {
       // subscribe user socket to room
-      socket.join(room);
-      console.log(`${name} has joined room: ${room}`);
+      socket.join(rName);
+      console.log(`${name} has joined room: ${rName}`);
 
       // updates user.name
       setName(users, name, uid);
+
       // updates rooms and user.room and emit it to all the users in that room
-      addUserToRoom(rooms, room, clientUser);
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+      const room = addUserToRoom(rooms, rName, clientUser);
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+      io.to(rName).emit("update-room", room)
       // send users in room back to client
-      callback(getUsersInRoom(rooms, room));
+      callback(getUsersInRoom(rooms, rName));
     }
   );
 
@@ -117,17 +119,7 @@ io.on("connection", (socket: any) => {
     const roomUsers = getUsersInRoom(rooms, roomName);
     // chooser ID from [1, # users in room]
     let newChooserID;
-    console.log(
-      "choose-chooser",
-      Object.keys(roomUsers),
-      Object.keys(roomUsers).length
-    );
     for (const userID in roomUsers) {
-      console.log(
-        "choose-chooser",
-        roomUsers[userID].position,
-        roomTurn % Object.keys(roomUsers).length
-      );
       if (
         roomUsers[userID].position ===
         roomTurn % Object.keys(roomUsers).length
@@ -155,6 +147,16 @@ io.on("connection", (socket: any) => {
     }
   });
 
+  // update phase 
+  socket.on("update-phase", (phase: string) => {
+    if (clientUser && clientUser.room) {
+      const rName = clientUser.room
+      const room = rooms[rName]
+      room.phase = phase
+      console.log(rooms)
+
+    }
+  })
   // user leave room
   socket.on(
     "leave-room",

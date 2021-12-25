@@ -160,7 +160,7 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = () => {
+const SearchVideo = ({setPhase, setSelectedVideo, setIsSearchVisible}) => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -176,8 +176,12 @@ const SearchVideo = () => {
   };
 
   const selectVideo = (key) => {
-    // returns info for the one vid  you select
+    // returns info for the one vid you select
     console.log(queryResult[key]);
+    setSelectedVideo(queryResult[key])
+    setPhase("guess")
+    setIsSearchVisible(false);
+
   };
 
   const extendSearch = () => {

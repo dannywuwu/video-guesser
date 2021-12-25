@@ -3,35 +3,49 @@ type Room = {
   rName: string;
   users: Users;
   turn: number;
+  phase: string;
   chooser?: User;
 };
 
 // maps room id to Room object
 type Rooms = Record<string, Room>;
 
-const addUserToRoom = (rooms: Rooms, room: string, user: User): void => {
+
+const roomFactory = (rName: string, users: Users, turn: number, phase: string, chooser: any) => {
+  return {
+    rName: rName,
+    users: users,
+    turn: turn,
+    phase: phase,
+    chooser: chooser
+  };
+};
+
+const addUserToRoom = (rooms: Rooms, rName: string, user: User): Room => {
   const uid = user.id;
-  // if room exists, add user
-  if (rooms[room]) {
-    rooms[room] = {
-      ...rooms[room],
-      users: { ...rooms[room].users, [uid]: user },
+  // if rName exists, add user
+  if (rooms[rName]) {
+    rooms[rName] = {
+      ...rooms[rName],
+      users: { ...rooms[rName].users, [uid]: user },
     };
   } else {
-    // new room containing only user starting at turn 0
-    rooms[room] = {
-      rName: room,
-      users: {
+    // new rName containing only user starting at turn 0
+    rooms[rName] = roomFactory(
+      rName,
+      {
         [uid]: user,
       },
-      turn: 0,
-      chooser: undefined,
-    };
+      0,
+      "search",
+      undefined,
+    );
   }
   // mutate user
-  user.room = room;
+  user.room = rName;
   // position starts at 0
-  user.position = Object.keys(getUsersInRoom(rooms, room)).length - 1;
+  user.position = Object.keys(getUsersInRoom(rooms, rName)).length - 1;
+  return rooms[rName]
 };
 
 // gets users map inside a particular room
