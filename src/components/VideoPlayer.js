@@ -6,7 +6,8 @@ import SearchContainer from "./SearchContainer";
 const VideoPlayer = (props) => {
   const { url, searchPhase } = props;
 
-  const [playing, setPlaying] = useState(false);
+  // set it to true for now for testing
+  const [playing, setPlaying] = useState(true);
   const [ref, setRef] = useState(null);
   // fraction percentage of current video duration played
   const [played, setPlayed] = useState(0);
@@ -18,14 +19,15 @@ const VideoPlayer = (props) => {
     ref.seekTo(time, "seconds");
   };
 
-  handleDuration = (_duration) => {
+  const handleDuration = (_duration) => {
     setDuration(_duration);
   };
 
-  handlePlaying = () => {
+  const handlePlaying = () => {
     setPlaying(!playing);
   };
 
+  console.log(url)
   return (
     <div>
       {searchPhase ? (
@@ -37,6 +39,7 @@ const VideoPlayer = (props) => {
             url={url}
             playing={playing}
             onDuration={handleDuration}
+            style={{ pointerEvents: 'none' }}
           />
           {played * duration}
         </div>

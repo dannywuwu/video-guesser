@@ -19,8 +19,8 @@ import { useRoom, defaultChooserModel } from "../context/RoomProvider";
 const defaultVideoModel = {
   title: "title",
   channelTitle: "channelTitle",
-  url: "",
-  videoId: "videoID",
+  imageURL: "",
+  videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
 const videoTime = 15;
@@ -40,7 +40,8 @@ const Game = () => {
   const [progress, setProgress] = useState({ percent: 0, intervalID: 0 });
   // the selected video
   const [selectedVideo, setSelectedVideo] = useState(defaultVideoModel);
-
+  console.log(selectedVideo);
+  
   const setChooser = (newChooser) => {
     setRoom((prev) => ({ ...prev, chooser: newChooser }));
     console.log("chooser", chooser);
@@ -157,6 +158,10 @@ const Game = () => {
         style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
       >
         <VideoPlayer
+        // props
+          url={selectedVideo["videoURL"]}
+          selectedPhase={phase}
+        // 
           style={{
             visibility:
               isChooser(socket.id, chooser.id) || phase === "score"

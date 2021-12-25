@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+  require('dotenv').config()
 }
 
 export {}; // fixes 'Cannot redeclare block-scoped let iable 'fetch'.ts(2451)' warning
@@ -190,11 +190,13 @@ io.on("connection", (socket: any) => {
 
 // youtube api key
 const API_KEY = process.env.API_KEY;
+const watchURL = "https://www.youtube.com/watch?v="
+
 
 // helper to format Youtube API response
 const formatVideoListData = (data: any): Video => {
   return data.map((video: any) => {
-    const {
+    let {
       snippet: {
         title,
         channelTitle,
@@ -204,7 +206,12 @@ const formatVideoListData = (data: any): Video => {
       },
       id: { videoId },
     } = video;
-    return { title, channelTitle, url, videoId };
+    if (!videoId) {
+      videoId = ""
+    }
+
+    const videoURL = watchURL + videoId
+    return { title, channelTitle, imageURL: url, videoURL};
   });
 };
 
@@ -216,10 +223,16 @@ app.get("/get/:search", (req, res) => {
     .then((response: any) => response.json())
     .then((data: any) => {
       const { items } = data;
+      console.log(url, data)
+      
       const videoListData = { items: formatVideoListData(items) };
       res.header("Content-Type", "application/json");
       res.send(JSON.stringify(videoListData, null, 4));
-    });
+      // res.send(data)
+    })
+    .catch((error: any) => {
+      console.log(error)
+    })
 });
 
 app.get("/", (req, res) => {
