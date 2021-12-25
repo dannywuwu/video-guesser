@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSocket } from "../context/SocketProvider";
 import { useUser } from "../context/UserProvider";
-import VideoPlayer from "../components/VideoPlayer";
+import VideoContainer from "../components/VideoContainer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
 
@@ -60,7 +60,7 @@ const Game = () => {
   return socket ? (
     <div>
       <h1>chooser is {chooser.id}</h1>
-      <VideoPlayer
+      <VideoContainer
         style={{
           visibility: isChooser() || phase === "score" ? "visible" : "hidden",
         }}

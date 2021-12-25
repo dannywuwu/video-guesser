@@ -3,7 +3,7 @@ import ReactPlayer from "react-player/youtube";
 import { Button } from "antd";
 import SearchContainer from "./SearchContainer";
 
-const VideoPlayer = (props) => {
+const VideoContainer = (props) => {
   const { url, searchPhase } = props;
 
   // playing/paused
@@ -62,4 +62,4 @@ const VideoPlayer = (props) => {
   );
 };
 
-export default VideoPlayer;
+export default VideoContainer;
