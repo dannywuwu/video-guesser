@@ -8,6 +8,15 @@
           flex-direction: column;
 }
 
+.game-root .game-guessContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
 .game-root .game-guessContainer input {
   text-align: center;
 }

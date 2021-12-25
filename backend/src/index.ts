@@ -142,6 +142,19 @@ io.on("connection", (socket: any) => {
     io.to(roomName).emit("chooser-chosen", newChooser);
   });
 
+  // update the users guesses
+  socket.on("update-guess", (guess: string) => {
+    if (clientUser && clientUser.room) {
+      clientUser.guess = guess;
+      const rName = clientUser.room
+      const room = rooms[rName]
+      console.log("update-guess");
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+    } else {
+      console.log("clientUser is null")
+    }
+  });
+
   // user leave room
   socket.on(
     "leave-room",
@@ -165,7 +178,7 @@ io.on("connection", (socket: any) => {
     // remove user from user and readyusers(if applicable) list
     if (clientUser) {
       const rName = getRoom(users, uid);
-      const room = rooms[rName]
+      const room = rooms[rName];
       console.log("disconnect", clientUser, rooms);
       leaveRoomBig(clientUser, users, room, rooms, uid, io);
       removeUser(users, uid);

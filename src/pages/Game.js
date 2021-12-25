@@ -45,6 +45,10 @@ const Game = () => {
     console.log("submitted");
   };
 
+  const handleGuess = (e) => {
+    const value = e.target.value
+    socket.emit("update-guess", value)
+  }
   // check if the progress is at 100 and clears the interval if so
   useEffect(() => {
     if (progress["percent"] >= videoTime) {
@@ -57,7 +61,7 @@ const Game = () => {
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
-    console.log("GAMEJS", socket);
+    console.log("GAMEJS", user);
 
     // start video here just for debugging purposes
     startVideo(progress, setProgress, videoTime);
@@ -76,6 +80,7 @@ const Game = () => {
 
   // update Users when they leave
   useEffect(() => {
+    console.log("all users", allUsers)
     if (socket) {
       socket.on("display-users", (users) => {
         setAllUsers(users);
@@ -130,7 +135,7 @@ const Game = () => {
         />
       </div>
       <div className="game-guessContainer">
-        {isChooser(socket.id, chooser.id) ? <GameTest /> : <Input defaultValue="" allowClear />}
+        {isChooser(socket.id, chooser.id) ? <GameTest /> : <Input  onPressEnter={handleGuess} defaultValue="" allowClear />}
       </div>
 
       <div className="game-allUsersContainer">
