@@ -1,6 +1,6 @@
 interface Video {
   title: string;
   channelTitle: string;
-  url: string;
-  videoId: string;
+  imageURL: string;
+  videoURL: string;
 }

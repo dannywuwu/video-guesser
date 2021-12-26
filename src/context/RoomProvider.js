@@ -16,7 +16,12 @@ export const defaultChooserModel = {
     points: 0,
     guess: "__________",
   };
-  
+export const defaultVideoModel = {
+  title: "videoTitle",
+  channelTitle: "channelTitle",
+  imageURL: "",
+  videoURL: ""
+};
 
 export function RoomProvider({ children }) {
   const defaultRoom = roomFactory(
@@ -24,7 +29,9 @@ export function RoomProvider({ children }) {
     {}, // users
     1, // turn
     "search",// phase
-    defaultChooserModel
+    defaultVideoModel,
+    defaultChooserModel,
+
   );
 
   const [room, setRoom] = useState(defaultRoom);

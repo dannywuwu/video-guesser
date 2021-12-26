@@ -27,7 +27,6 @@ const VideoPlayer = (props) => {
     setPlaying(!playing);
   };
 
-  console.log(url)
   return (
     <div>
       {searchPhase ? (

@@ -160,7 +160,7 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = ({setPhase, setSelectedVideo, setIsSearchVisible}) => {
+const SearchVideo = ({setPhase, selectVideo, setIsSearchVisible}) => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -175,14 +175,10 @@ const SearchVideo = ({setPhase, setSelectedVideo, setIsSearchVisible}) => {
     // setInputDisabled(true);
   };
 
-  const selectVideo = (key) => {
-    // returns info for the one vid you select
-    console.log(queryResult[key]);
-    setSelectedVideo(queryResult[key])
-    setPhase("guess")
+  const handleVideo = (video) => {
     setIsSearchVisible(false);
-
-  };
+    selectVideo(video)
+  }
 
   const extendSearch = () => {
     setSlice((prev) => {
@@ -224,7 +220,7 @@ const SearchVideo = ({setPhase, setSelectedVideo, setIsSearchVisible}) => {
               <Card.Grid
                 key={index}
                 // bordered={false}
-                onClick={() => selectVideo(index)}
+                onClick={() => handleVideo(queryResult[index])}
                 // loading={loading}
                 style={{ display: "inline-block" }}
               >

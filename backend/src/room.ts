@@ -1,9 +1,12 @@
+
+
 // room room!
 type Room = {
   rName: string;
   users: Users;
   turn: number;
   phase: string;
+  video: Video;
   chooser?: User;
 };
 
@@ -11,12 +14,13 @@ type Room = {
 type Rooms = Record<string, Room>;
 
 
-const roomFactory = (rName: string, users: Users, turn: number, phase: string, chooser: any) => {
+const roomFactory = (rName: string, users: Users, turn: number, phase: string, video: Video, chooser: any) => {
   return {
     rName: rName,
     users: users,
     turn: turn,
     phase: phase,
+    video: video,
     chooser: chooser
   };
 };
@@ -31,6 +35,13 @@ const addUserToRoom = (rooms: Rooms, rName: string, user: User): Room => {
     };
   } else {
     // new rName containing only user starting at turn 0
+    const defaultVideo = {
+      title: "title",
+      channelTitle: "channelTitle",
+      imageURL: "",
+      videoURL: ""
+    }
+
     rooms[rName] = roomFactory(
       rName,
       {
@@ -38,6 +49,7 @@ const addUserToRoom = (rooms: Rooms, rName: string, user: User): Room => {
       },
       0,
       "search",
+      defaultVideo,
       undefined,
     );
   }

@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== "production") {
-  require('dotenv').config()
+  require("dotenv").config();
 }
 
 export {}; // fixes 'Cannot redeclare block-scoped let iable 'fetch'.ts(2451)' warning
@@ -97,7 +97,7 @@ io.on("connection", (socket: any) => {
       // updates rooms and user.room and emit it to all the users in that room
       const room = addUserToRoom(rooms, rName, clientUser);
       io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
-      io.to(rName).emit("update-room", room)
+      io.to(rName).emit("update-room", room);
       // send users in room back to client
       callback(getUsersInRoom(rooms, rName));
     }
@@ -114,64 +114,89 @@ io.on("connection", (socket: any) => {
   // choosing the chooser phase
   socket.on("choose-chooser", (roomName: string) => {
     // increment the turn counter for this room
-    const roomTurn = ++rooms[roomName].turn;
-    console.log("roomTurn", roomTurn);
-    const roomUsers = getUsersInRoom(rooms, roomName);
-    // chooser ID from [1, # users in room]
-    let newChooserID;
-    for (const userID in roomUsers) {
-      if (
-        roomUsers[userID].position ===
-        roomTurn % Object.keys(roomUsers).length
-      ) {
-        newChooserID = userID;
+    if (rooms[roomName]) {
+      const roomTurn = ++rooms[roomName].turn;
+      console.log("roomTurn", roomTurn);
+      const roomUsers = getUsersInRoom(rooms, roomName);
+      // chooser ID from [1, # users in room]
+      let newChooserID;
+      for (const userID in roomUsers) {
+        if (
+          roomUsers[userID].position ===
+          roomTurn % Object.keys(roomUsers).length
+        ) {
+          newChooserID = userID;
+        }
       }
+      // update chooser for room
+      const newChooser = getUser(users, newChooserID);
+      console.log("new chooser is " + newChooserID, newChooser);
+      rooms[roomName].chooser = newChooser;
+      io.to(roomName).emit("chooser-chosen", newChooser);
+    } else {
+      console.log("rooms[rName] is null at choose-chooser");
     }
-    // update chooser for room
-    const newChooser = getUser(users, newChooserID);
-    console.log("new chooser is " + newChooserID, newChooser);
-    rooms[roomName].chooser = newChooser;
-    io.to(roomName).emit("chooser-chosen", newChooser);
   });
 
   // update the users guesses
   socket.on("update-guess", (guess: string) => {
     if (clientUser && clientUser.room) {
       clientUser.guess = guess;
-      const rName = clientUser.room
-      const room = rooms[rName]
+      const rName = clientUser.room;
+      const room = rooms[rName];
       console.log("update-guess");
       io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
     } else {
-      console.log("clientUser is null")
+      console.log("clientUser is null at update-guess");
     }
   });
 
-  // update phase 
+  // update phase
   socket.on("update-phase", (phase: string) => {
     if (clientUser && clientUser.room) {
-      const rName = clientUser.room
-      const room = rooms[rName]
-      room.phase = phase
-      console.log(rooms)
-
-    }
-  })
-  // user leave room
-  socket.on(
-    "leave-room",
-    (
-      rName: string,
-      user: User,
-      callback: (f: (rooms: Rooms, room: string) => Users) => void
-    ) => {
+      const rName = clientUser.room;
       const room = rooms[rName];
+      // this is to make sure we don't enter an infinite socket calling bullshit
+      if (room.phase !== phase) {
+        room.phase = phase;
+        io.to(rName).emit("display-room", room, ["phase"]);
+      } else {
+        console.log(`room phase ${phase} is the same, no need to update`);
+      }
+    } else {
+      console.log("clientUser is null at update-phase");
+    }
+  });
+
+  // update video
+  socket.on("update-video", (video: Video) => {
+    if (clientUser && clientUser.room) {
+      const rName = clientUser.room;
+      const room = rooms[rName];
+      // this is to make sure we don't enter an infinite socket calling bullshit
+      if ( JSON.stringify(room.video) !==  JSON.stringify(video)) {
+        room.video = video;
+        io.to(rName).emit("display-room", room, ["video"]);
+      } else {
+        console.log(`room video ${video} is the same, no need to update`)
+      }
+    } else {
+      console.log("clientUser is null at update-video");
+    }
+  });
+
+  // user leave room
+  socket.on("leave-room", (rName: string, user: User) => {
+    const room = rooms[rName];
+    if (room) {
       console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
       leaveRoomBig(clientUser, users, room, rooms, uid, io);
       removeUser(users, uid);
+    } else {
+      console.log("room is null at leave-room");
     }
-  );
+  });
 
   // player leaves the game (why would they ever do this)
   socket.on("disconnect", () => {
@@ -181,17 +206,20 @@ io.on("connection", (socket: any) => {
     if (clientUser) {
       const rName = getRoom(users, uid);
       const room = rooms[rName];
-      console.log("disconnect", clientUser, rooms);
-      leaveRoomBig(clientUser, users, room, rooms, uid, io);
-      removeUser(users, uid);
+      if (room) {
+        console.log("disconnect", clientUser, rooms);
+        leaveRoomBig(clientUser, users, room, rooms, uid, io);
+        removeUser(users, uid);
+      } else {
+        console.log("room is null at disconnect");
+      }
     }
   });
 });
 
 // youtube api key
 const API_KEY = process.env.API_KEY;
-const watchURL = "https://www.youtube.com/watch?v="
-
+const watchURL = "https://www.youtube.com/watch?v=";
 
 // helper to format Youtube API response
 const formatVideoListData = (data: any): Video => {
@@ -207,11 +235,11 @@ const formatVideoListData = (data: any): Video => {
       id: { videoId },
     } = video;
     if (!videoId) {
-      videoId = ""
+      videoId = "";
     }
 
-    const videoURL = watchURL + videoId
-    return { title, channelTitle, imageURL: url, videoURL};
+    const videoURL = watchURL + videoId;
+    return { title, channelTitle, imageURL: url, videoURL };
   });
 };
 
@@ -223,16 +251,16 @@ app.get("/get/:search", (req, res) => {
     .then((response: any) => response.json())
     .then((data: any) => {
       const { items } = data;
-      console.log(url, data)
-      
+      console.log(url, data);
+
       const videoListData = { items: formatVideoListData(items) };
       res.header("Content-Type", "application/json");
       res.send(JSON.stringify(videoListData, null, 4));
       // res.send(data)
     })
     .catch((error: any) => {
-      console.log(error)
-    })
+      console.log(error);
+    });
 });
 
 app.get("/", (req, res) => {
