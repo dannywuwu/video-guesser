@@ -1,8 +1,8 @@
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
+  require('dotenv').config()
 }
 
-export {}; // fixes 'Cannot redeclare block-scoped variable 'fetch'.ts(2451)' warning
+export {}; // fixes 'Cannot redeclare block-scoped let iable 'fetch'.ts(2451)' warning
 import express from "express";
 
 const fetch = require("node-fetch");
@@ -35,10 +35,12 @@ const {
   getRoomTurn,
   leaveRoom,
   getUsersInRoom,
+  deleteRoom,
+  leaveRoomBig,
 } = require("../build/room.js");
 
-var users: Users = {}; // user id -> user objects
-var rooms: Rooms = {}; // room id -> room objects
+let users: Users = {}; // user id -> user objects
+let rooms: Rooms = {}; // room id -> room objects
 
 // creates user and adds them to Users and Rooms
 const createUser = (
@@ -73,7 +75,7 @@ io.on("connection", (socket: any) => {
         throw "set-user id is not uid";
       }
       // create user object
-      clientUser = userFactory(id, name, room)
+      clientUser = userFactory(id, name, room);
       // add user to users{} dict
       addUserToUsers(users, clientUser, uid);
       console.log(uid + " has connected");
@@ -84,20 +86,20 @@ io.on("connection", (socket: any) => {
   // user joins room
   socket.on(
     "join-room",
-    (name: string, room: string, callback: (users: Users) => Users) => {
-
+    (name: string, rName: string, callback: (users: Users) => Users) => {
       // subscribe user socket to room
-      socket.join(room);
-      console.log(`${name} has joined room: ${room}`);
+      socket.join(rName);
+      console.log(`${name} has joined room: ${rName}`);
 
       // updates user.name
       setName(users, name, uid);
+
       // updates rooms and user.room and emit it to all the users in that room
-      addUserToRoom(rooms, room, clientUser);
-      console.log("join-room", rooms)
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+      const room = addUserToRoom(rooms, rName, clientUser);
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+      io.to(rName).emit("update-room", room)
       // send users in room back to client
-      callback(getUsersInRoom(rooms, room));
+      callback(getUsersInRoom(rooms, rName));
     }
   );
 
@@ -110,38 +112,64 @@ io.on("connection", (socket: any) => {
   });
 
   // choosing the chooser phase
-  socket.on("choose-chooser", (roomID: number) => {
-    console.log("choosing chooser for " + roomID);
+  socket.on("choose-chooser", (roomName: string) => {
     // increment the turn counter for this room
-    const roomTurn = ++rooms[roomID].turn;
-    const roomUsers = getUsersInRoom(rooms, roomID);
+    const roomTurn = ++rooms[roomName].turn;
+    console.log("roomTurn", roomTurn);
+    const roomUsers = getUsersInRoom(rooms, roomName);
     // chooser ID from [1, # users in room]
-    const newChooserID = roomUsers.find(
-      (user: User) => user.position == roomTurn % roomUsers.length
-    );
-    console.log("new chooser is " + newChooserID);
+    let newChooserID;
+    for (const userID in roomUsers) {
+      if (
+        roomUsers[userID].position ===
+        roomTurn % Object.keys(roomUsers).length
+      ) {
+        newChooserID = userID;
+      }
+    }
     // update chooser for room
     const newChooser = getUser(users, newChooserID);
-    rooms[roomID].chooser = newChooser;
-    io.to(roomID).emit("chooser-chosen", newChooser);
+    console.log("new chooser is " + newChooserID, newChooser);
+    rooms[roomName].chooser = newChooser;
+    io.to(roomName).emit("chooser-chosen", newChooser);
   });
 
+  // update the users guesses
+  socket.on("update-guess", (guess: string) => {
+    if (clientUser && clientUser.room) {
+      clientUser.guess = guess;
+      const rName = clientUser.room
+      const room = rooms[rName]
+      console.log("update-guess");
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+    } else {
+      console.log("clientUser is null")
+    }
+  });
+
+  // update phase 
+  socket.on("update-phase", (phase: string) => {
+    if (clientUser && clientUser.room) {
+      const rName = clientUser.room
+      const room = rooms[rName]
+      room.phase = phase
+      console.log(rooms)
+
+    }
+  })
   // user leave room
   socket.on(
     "leave-room",
     (
-      room: Room,
+      rName: string,
       user: User,
       callback: (f: (rooms: Rooms, room: string) => Users) => void
     ) => {
+      const room = rooms[rName];
       console.log(uid + " has left room:  " + room);
       // mutate user and rooms[uid]
-      leaveRoom(clientUser, rooms, uid);
+      leaveRoomBig(clientUser, users, room, rooms, uid, io);
       removeUser(users, uid);
-      // logging message for testing
-      callback(getUsersInRoom(rooms, room));
-      // rerender user display
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
     }
   );
 
@@ -151,22 +179,24 @@ io.on("connection", (socket: any) => {
     console.log(`${uid} has left`);
     // remove user from user and readyusers(if applicable) list
     if (clientUser) {
-      const room = getRoom(users, uid);
-      console.log("disconnect", clientUser, rooms) 
-      leaveRoom(clientUser, rooms, uid);
-      users = removeUser(users, uid);
-      io.to(room).emit("display-users", getUsersInRoom(rooms, room));
+      const rName = getRoom(users, uid);
+      const room = rooms[rName];
+      console.log("disconnect", clientUser, rooms);
+      leaveRoomBig(clientUser, users, room, rooms, uid, io);
+      removeUser(users, uid);
     }
   });
 });
 
 // youtube api key
 const API_KEY = process.env.API_KEY;
+const watchURL = "https://www.youtube.com/watch?v="
+
 
 // helper to format Youtube API response
 const formatVideoListData = (data: any): Video => {
   return data.map((video: any) => {
-    const {
+    let {
       snippet: {
         title,
         channelTitle,
@@ -176,7 +206,12 @@ const formatVideoListData = (data: any): Video => {
       },
       id: { videoId },
     } = video;
-    return { title, channelTitle, url, videoId };
+    if (!videoId) {
+      videoId = ""
+    }
+
+    const videoURL = watchURL + videoId
+    return { title, channelTitle, imageURL: url, videoURL};
   });
 };
 
@@ -188,10 +223,16 @@ app.get("/get/:search", (req, res) => {
     .then((response: any) => response.json())
     .then((data: any) => {
       const { items } = data;
+      console.log(url, data)
+      
       const videoListData = { items: formatVideoListData(items) };
       res.header("Content-Type", "application/json");
       res.send(JSON.stringify(videoListData, null, 4));
-    });
+      // res.send(data)
+    })
+    .catch((error: any) => {
+      console.log(error)
+    })
 });
 
 app.get("/", (req, res) => {
