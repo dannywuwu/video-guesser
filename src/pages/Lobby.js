@@ -27,19 +27,19 @@ const Lobby = () => {
   const history = useHistory();
 
   const socket = useSocket();
-  const { user, setUser, allUsers, setAllUsers } = useUser();
+  const { user, allUsers, setAllUsers } = useUser();
   // state
   const [readyUsers, setReadyUsers] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [countDown, setCountDown] = useState(false);
 
-  // user join/leave
+  // user join/leave lobby
   useEffect(() => {
     if (socket) {
       console.log("joining room as ", user);
       // user joins a room
       socket.emit("join-room", user.name, user.room, (users) => {
-        // get all users in room
+        // we now have all users in room
         setAllUsers(users);
       });
 
@@ -62,7 +62,7 @@ const Lobby = () => {
       });
       console.log("new users");
     }
-    console.log("all users", allUsers);
+    console.log("all displayed users", allUsers);
   }, [allUsers]);
 
   // player is ready
@@ -96,12 +96,10 @@ const Lobby = () => {
     }
   }, [readyUsers]);
 
-  let readyText;
-  if (isReady) {
-    readyText = "Unready";
-  } else {
-    readyText = "Ready!";
-  }
+  const handleReady = () => {
+    setIsReady((prev) => !prev);
+  };
+
   // redirect if socket undefined
   return socket ? (
     <div>
@@ -143,7 +141,6 @@ const Lobby = () => {
               );
             })}
         </Col>
-
         {countDown ? (
           <Countdown
             date={Date.now() + 5000}
@@ -153,7 +150,7 @@ const Lobby = () => {
                 size="large"
                 type="primary"
                 style={{ marginTop: 16 }}
-                onClick={() => setIsReady((prev) => !prev)}
+                onClick={handleReady}
               >
                 {seconds}
               </Button>
@@ -164,10 +161,10 @@ const Lobby = () => {
             size="large"
             type="primary"
             style={{ marginTop: 16 }}
-            onClick={() => setIsReady((prev) => !prev)}
+            onClick={handleReady}
           >
             {" "}
-            {readyText}{" "}
+            {isReady ? "Unready" : "Ready !"}{" "}
           </Button>
         )}
       </Row>

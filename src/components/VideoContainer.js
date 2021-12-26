@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import ReactPlayer from "react-player/youtube";
-import { Button } from "antd";
+import { Button, TimePicker } from "antd";
 import SearchContainer from "./SearchContainer";
 
 const VideoContainer = (props) => {
@@ -41,20 +41,23 @@ const VideoContainer = (props) => {
         <SearchContainer />
       ) : (
         <div className="player-container">
-          <ReactPlayer
-            ref={setRef}
-            url={url}
-            playing={playing}
-            onProgress={handleProgress}
-            onStart={handleStart}
-            onBuffer={() => setBufferStatus(true)}
-            onBufferEnd={() => setBufferStatus(false)}
-          />
+          <div className="react-player">
+            <ReactPlayer
+              ref={setRef}
+              url={url}
+              playing={playing}
+              onProgress={handleProgress}
+              onStart={handleStart}
+              onBuffer={() => setBufferStatus(true)}
+              onBufferEnd={() => setBufferStatus(false)}
+            />
+          </div>
           <div className="player-controls">
             <Button onClick={handlePlaying}>
-              {playing ? "Pause" : "Play"}
+              {playing ? "Pause Preview" : "Preview"}
             </Button>
             <Button onClick={() => seek(5)}>seek</Button>
+            <TimePicker format={"mm:ss"} showNow={false} />
           </div>
         </div>
       )}
