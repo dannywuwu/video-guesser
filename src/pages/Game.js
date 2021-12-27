@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSocket } from "../context/SocketProvider";
 import { useUser } from "../context/UserProvider";
-import VideoPlayer from "../components/VideoPlayer2";
+import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
 import { Redirect } from "react-router";
 import { Button } from "antd";
 import "../styles/game/gamePageStyles.css";
-import { AutoComplete, Input, Progress } from "antd";
+import { Input, Progress } from "antd";
 import {
   isChooser,
   updateChooser,
@@ -69,7 +69,9 @@ const Game = () => {
   };
 
   const handleGuess = (value) => {
-    socket.emit("update-guess", value);
+    if (socket) {
+      socket.emit("update-guess", value);
+    }
   };
   // check if the progress is at 100 and clears the interval if so
   useEffect(() => {
@@ -132,7 +134,6 @@ const Game = () => {
     } else if (phase === "guess") {
       // start the video timer
       startVideoTimer(progress, setProgress, videoTime);
-    } else {
     }
   }, [phase]);
   // redirect if socket undefined
