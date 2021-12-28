@@ -179,6 +179,23 @@ io.on("connection", (socket: any) => {
     }
   });
 
+  // add points to the winners 
+  socket.on("add-points", (winners: Array<User>) => {
+    if (clientUser && clientUser.room) {
+      winners.forEach(winner => {
+        const user = getUser(users, winner.id)
+        user.points += 1;
+        
+      })
+      const rName = clientUser.room;
+      const room = rooms[rName];
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+    } else {
+      console.log("clientUser is null at add-points")
+    }
+
+  })
+
   // user leave room
   socket.on("leave-room", (rName: string, user: User) => {
     const room = rooms[rName];

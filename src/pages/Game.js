@@ -130,6 +130,7 @@ const Game = () => {
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
     setWinners([])
+    updatePhase("search")
   };
 
   // take in a users guess and the emit that
@@ -145,7 +146,7 @@ const Game = () => {
   useEffect(() => {
     console.log("current phase", phase);
     if (phase === "search") {
-
+      console.log(winners, selectedVideo)
     } else if (phase === "guess") {
       // start the video timer
       startVideoTimer(progress, setProgress, videoTime);
@@ -155,7 +156,7 @@ const Game = () => {
     } else {
       // the 'end' phase
       // call nextRound() to reset all the states at the end (we need a different state)
-      nextRound()
+      // nextRound()
     }
   }, [phase]);
 
@@ -181,20 +182,28 @@ const Game = () => {
 
   // adds the chosen winner into the array of all selected winners
   const selectWinner = (winner) => {
+    
+    if (!checkChooser(user.id)) {
+      console.log("can't select if you're not chooser")
+      return;
+    }
     if (winner.id === user.id) {
       console.log("can't select yourself")
       return;
     }
 
-    if (checkChooser(user.id) && phase === "score") {
-      setWinners(prev => [... new Set([...prev, winner])])
-    } else {
-      console.log("can't select winner if not in 'score' phase or user is chooser")
+    if (phase !== "score") {
+      console.log("can't select a winner if not in 'score' phase")
+      return;
     }
+
+    setWinners(prev => [... new Set([...prev, winner])])
+     
   };
   
   const submitSelected = () => {
-    console.log("winners", winners)
+    socket.emit("add-points", winners)
+    updatePhase("end")
   };
 
   // redirect if socket undefined
