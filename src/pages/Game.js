@@ -134,7 +134,6 @@ const Game = () => {
   };
 
   const updatePhase = (newPhase) => {
-    console.log("update phase")
     socket.emit("update-phase", newPhase);
   }
 
@@ -188,7 +187,7 @@ const Game = () => {
     }
   }, [room]);
 
-
+  
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">

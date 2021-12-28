@@ -1,5 +1,6 @@
 import { React, useState } from "react";
 import ReactPlayer from "react-player/youtube";
+import { useEffect } from "react/cjs/react.development";
 import SearchContainer from "./SearchContainer";
 
 // TODO: rename to VideoContainer
@@ -26,6 +27,10 @@ const VideoPlayer = (props) => {
   const handlePlaying = () => {
     setPlaying(!playing);
   };
+
+  useEffect(() => {
+    console.log(url)
+  }, [url])
 
   return (
     <div>
