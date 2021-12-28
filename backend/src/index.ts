@@ -144,7 +144,7 @@ io.on("connection", (socket: any) => {
       clientUser.guess = guess;
       const rName = clientUser.room;
       const room = rooms[rName];
-      console.log("update-guess");
+      console.log("update-guess", room);
       io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
     } else {
       console.log("clientUser is null at update-guess");
@@ -157,12 +157,9 @@ io.on("connection", (socket: any) => {
       const rName = clientUser.room;
       const room = rooms[rName];
       // this is to make sure we don't enter an infinite socket calling bullshit
-      if (room.phase !== phase) {
-        room.phase = phase;
-        io.to(rName).emit("display-room", room, ["phase"]);
-      } else {
-        console.log(`room phase ${phase} is the same, no need to update`);
-      }
+      room.phase = phase;
+      console.log("update-phase", room);
+      io.to(rName).emit("display-room", room, ["phase"]);
     } else {
       console.log("clientUser is null at update-phase");
     }
@@ -173,13 +170,10 @@ io.on("connection", (socket: any) => {
     if (clientUser && clientUser.room) {
       const rName = clientUser.room;
       const room = rooms[rName];
+      console.log("update-video", room);
       // this is to make sure we don't enter an infinite socket calling bullshit
-      if ( JSON.stringify(room.video) !==  JSON.stringify(video)) {
-        room.video = video;
-        io.to(rName).emit("display-room", room, ["video"]);
-      } else {
-        console.log(`room video ${video} is the same, no need to update`)
-      }
+      room.video = video;
+      io.to(rName).emit("display-room", room, ["video"]);
     } else {
       console.log("clientUser is null at update-video");
     }

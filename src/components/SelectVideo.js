@@ -2,7 +2,7 @@ import { Button, Modal } from "antd";
 import React, { useState } from "react";
 import SearchContainer from "./SearchContainer";
 
-const SelectVideo = ({ phase, setPhase, selectVideo }) => {
+const SelectVideo = ({ phase, updatePhase, updateVideo }) => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const toggleSearch = () => {
@@ -21,7 +21,7 @@ const SelectVideo = ({ phase, setPhase, selectVideo }) => {
         onCancel={handleCancel}
         footer={null}
       >
-        <SearchContainer setIsSearchVisible={setIsSearchVisible} setPhase={setPhase} selectVideo={selectVideo}/>
+        <SearchContainer setIsSearchVisible={setIsSearchVisible} updatePhase={updatePhase} updateVideo={updateVideo}/>
       </Modal>
     </div>
   );

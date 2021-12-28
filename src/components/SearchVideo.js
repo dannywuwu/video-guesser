@@ -160,7 +160,7 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = ({setPhase, selectVideo, setIsSearchVisible}) => {
+const SearchVideo = ({updatePhase, updateVideo, setIsSearchVisible}) => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -177,7 +177,7 @@ const SearchVideo = ({setPhase, selectVideo, setIsSearchVisible}) => {
 
   const handleVideo = (video) => {
     setIsSearchVisible(false);
-    selectVideo(video)
+    updateVideo(video)
   }
 
   const extendSearch = () => {

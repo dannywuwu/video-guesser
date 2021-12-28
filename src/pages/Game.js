@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../context/SocketProvider";
 import { useUser } from "../context/UserProvider";
 import VideoPlayer from "../components/VideoPlayer";
@@ -35,32 +35,39 @@ const Game = () => {
 
   // the user that's choosing the video
   const chooser = room.chooser || defaultChooserModel;
-  
-  // phase toggle: 'search', 'guess', 'score'
+  // const [chooser, setChooser] = useState(room.chooser);
+
+  // phase toggle: 'search', 'guess', 'score', 'end'
   const phase = room.phase;
+  // const [phase, setPhase] = useState(room.phase);
 
   // the selected video
   const selectedVideo = room.video || defaultVideoModel
-  
+  // const [selectedVideo, setSelectedVideo] = useState(room.video);
+
   // the progress bar at the top
   const [progress, setProgress] = useState({ percent: 0, intervalID: 0 });
 
+  // state for the properties to be udpated
+  const [updatedProperties, setUpdatedProperties] = useState([]);
 
-  // ******************* setters ********************* //
+  // ******************* chooser stuff ********************* //
 
-  // set the video 
-  const setSelectedVideo = (newVideo) => {
-    setRoom((prev) => ({...prev, video: newVideo}))
-  }
+  // // set the video
+  // const setSelectedVideo = (newVideo) => {
+  //   setRoom((prev) => ({...prev, video: newVideo}))
+  // }
+  
+  // // set the phase
+  // const setPhase = (newPhase) => {
+  //   setRoom((prev) => ({ ...prev, phase: newPhase }));
+  // };
+
   // set the chooser
   const setChooser = (newChooser) => {
     setRoom((prev) => ({ ...prev, chooser: newChooser }));
   };
 
-  // set the phase
-  const setPhase = (newPhase) => {
-    setRoom((prev) => ({ ...prev, phase: newPhase }));
-  };
 
   const submitSelected = () => {
     console.log("submitted");
@@ -70,7 +77,7 @@ const Game = () => {
   useEffect(() => {
     if (progress["percent"] >= videoTime) {
       clearInterval(progress["intervalID"]);
-      setPhase("score");
+      updatePhase("score");
     }
   }, [progress]);
 
@@ -78,12 +85,10 @@ const Game = () => {
   useEffect(() => {
     // send user id to choose-chooser
     console.log("GAMEJS", user);
-
     if (socket) {
       // emits to the back, and updates the chosen user
       updateChooser(socket, user.room);
     }
-
     return () => {
       // if socket is undefined, that mean user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
       // else, "leave-room" will remove it
@@ -118,78 +123,70 @@ const Game = () => {
     }
   }, [allUsers]);
 
-
   // ******************* video selection and phase changes ********************* //
 
-  
-  // select the video to be played
-  const selectVideo = (selectedVideo) => {
+  // udpate the video to be played
+  const updateVideo = (video) => {
     // returns info for the one vid you select
-    console.log(selectedVideo);
-    setSelectedVideo(selectedVideo)
-    setPhase("guess")
+    console.log("update video")
+    socket.emit("update-video", video);
+    updatePhase("guess");
   };
+
+  const updatePhase = (newPhase) => {
+    console.log("update phase")
+    socket.emit("update-phase", newPhase);
+  }
 
   // clear state for next round
   const nextRound = () => {
     // emit events TODO
     // reset user search, guesses
-    setSelectedVideo(defaultVideoModel);
-    handleGuess(defaultChooserModel.guess);
+    updateVideo(defaultVideoModel);
+    updateGuess(defaultChooserModel.guess);
   };
 
-  // take in a users guess and the emit that 
-  const handleGuess = (value) => {
+  // take in a users guess and the emit that
+  const updateGuess = (value) => {
     if (socket) {
       socket.emit("update-guess", value);
     } else {
-      console.log("socket is null, skipping socket.emit(update-guess)")
+      console.log("socket is null, skipping socket.emit(update-guess)");
     }
   };
-
 
   // listen for phase changes
   useEffect(() => {
     console.log("current phase", phase);
     if (phase === "search") {
-      // call nextRound() to reset all the states
-      nextRound();
+
     } else if (phase === "guess") {
       // start the video timer
       startVideoTimer(progress, setProgress, videoTime);
-    } else {
-      // the score phase...
+    } else if (phase === "score") {
+      // the 'score' phase...
 
-    }
-    if (socket) {
-      socket.emit("update-phase", phase)
     } else {
-      console.log("socket is null at update-phase")
+      // the 'end' phase
+      // call nextRound() to reset all the states at the end (we need a different state)
+      nextRound()
     }
   }, [phase]);
 
-  // listen for selectedVideo changes and then emit that
-  useEffect(() => {
-    console.log("selectedVideo", selectedVideo)
-    if (socket) {
-      socket.emit("update-video", selectedVideo)
-    } else {
-      console.log("socket is null at update-video")
-    }
-  }, [selectedVideo]);
-
-  // listen for any incoming rooms changes from the scoket 
+  // if ran, it will listen for changes to room
   useEffect(() => {
     if (socket) {
       // updated properties contains only the properties we want to change (other wise all the use effects affiliated with the other properties(that haven't been updated) will run as well)
-      socket.once("display-room", (room, updatedProperties)=> {
-        updatedProperties.forEach(property => {
-          setRoom(prev => ({...prev, [property]: room[property] }))
-        })
-        console.log("display-room", room)
-      })
+      socket.once("display-room", (room, updatedProperties) => {
+        console.log(updatedProperties);
+        updatedProperties.forEach((property) => {
+          setRoom((prev) => ({ ...prev, [property]: room[property]}));
+        });
+      });
+    } else {
+      console.log("socket is null at display-room");
     }
-  }, [room])
+  }, [room]);
 
 
   // redirect if socket undefined
@@ -201,7 +198,6 @@ const Game = () => {
           showInfo={false}
         />
       </div>
-
       {/* <h1>chooser is {chooser.id}</h1> */}
       {/* <h3
           style={{
@@ -215,10 +211,10 @@ const Game = () => {
         style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
       >
         <VideoPlayer
-        // props
+          // props
           url={selectedVideo["videoURL"]}
           selectedPhase={phase}
-        // 
+          //
           style={{
             visibility:
               isChooser(socket.id, chooser.id) || phase === "score"
@@ -231,20 +227,19 @@ const Game = () => {
       <div className="game-guessContainer">
         {isChooser(socket.id, chooser.id) ? (
           <SelectVideo
-            phase={phase} 
-            setPhase={setPhase}
-            selectVideo={selectVideo}
+            phase={phase}
+            updatePhase={updatePhase}
+            updateVideo={updateVideo}
           />
         ) : (
           <Input
             disabled={phase === "guess" ? false : true}
-            onPressEnter={(e) => handleGuess(e.target.value)}
+            onPressEnter={(e) => updateGuess(e.target.value)}
             defaultValue=""
             allowClear
           />
         )}
       </div>
-
       <div className="game-allUsersContainer">
         <UserList
           chooser={chooser}
