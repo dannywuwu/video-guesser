@@ -2,10 +2,7 @@
 export const updateChooser = (socket, room) => {
   socket.emit("choose-chooser", room);
 };
-// return true if current user is chooser
-export const isChooser = (socketID, chooserID) => {
-  return socketID === chooserID ? true : false;
-};
+
 
 // give points to selected players
 // called once Chooser submits correct players

@@ -8,7 +8,7 @@ import { Button } from "antd";
 import "../styles/game/gamePageStyles.css";
 import { AutoComplete, Input, Progress } from "antd";
 import {
-  isChooser,
+  checkChooser,
   updateChooser,
   updatePoints,
   startVideoTimer,
@@ -23,7 +23,7 @@ const defaultVideoModel = {
   videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
-const videoTime = 15;
+const videoTime = 1;
 
 const Game = () => {
   // ******************* states and variables ********************* //
@@ -35,42 +35,28 @@ const Game = () => {
 
   // the user that's choosing the video
   const chooser = room.chooser || defaultChooserModel;
-  // const [chooser, setChooser] = useState(room.chooser);
 
   // phase toggle: 'search', 'guess', 'score', 'end'
   const phase = room.phase;
-  // const [phase, setPhase] = useState(room.phase);
 
   // the selected video
   const selectedVideo = room.video || defaultVideoModel
-  // const [selectedVideo, setSelectedVideo] = useState(room.video);
 
   // the progress bar at the top
   const [progress, setProgress] = useState({ percent: 0, intervalID: 0 });
+  const [winners, setWinners] = useState([]);
 
   // state for the properties to be udpated
   const [updatedProperties, setUpdatedProperties] = useState([]);
 
   // ******************* chooser stuff ********************* //
-
-  // // set the video
-  // const setSelectedVideo = (newVideo) => {
-  //   setRoom((prev) => ({...prev, video: newVideo}))
-  // }
-  
-  // // set the phase
-  // const setPhase = (newPhase) => {
-  //   setRoom((prev) => ({ ...prev, phase: newPhase }));
-  // };
-
+// return true if current user is chooser
+  const checkChooser = (socketID) => {
+    return socketID === chooser.id ? true : false;
+  };
   // set the chooser
   const setChooser = (newChooser) => {
     setRoom((prev) => ({ ...prev, chooser: newChooser }));
-  };
-
-
-  const submitSelected = () => {
-    console.log("submitted");
   };
 
   // check if the progress is at 100 and clears the interval if so
@@ -140,9 +126,10 @@ const Game = () => {
   // clear state for next round
   const nextRound = () => {
     // emit events TODO
-    // reset user search, guesses
+    // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
+    setWinners([])
   };
 
   // take in a users guess and the emit that
@@ -187,7 +174,29 @@ const Game = () => {
     }
   }, [room]);
 
+  console.log(checkChooser(user.id), user.id, chooser.id)
+
+
+  // selecting winner 
+
+  // adds the chosen winner into the array of all selected winners
+  const selectWinner = (winner) => {
+    if (winner.id === user.id) {
+      console.log("can't select yourself")
+      return;
+    }
+
+    if (checkChooser(user.id) && phase === "score") {
+      setWinners(prev => [... new Set([...prev, winner])])
+    } else {
+      console.log("can't select winner if not in 'score' phase or user is chooser")
+    }
+  };
   
+  const submitSelected = () => {
+    console.log("winners", winners)
+  };
+
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
@@ -200,7 +209,7 @@ const Game = () => {
       {/* <h1>chooser is {chooser.id}</h1> */}
       {/* <h3
           style={{
-            visibility: isChooser() ? "hidden" : "visible",
+            visibility: checkChooser() ? "hidden" : "visible",
           }}
         >
           if you are not a chooser you can see this
@@ -216,7 +225,7 @@ const Game = () => {
           //
           style={{
             visibility:
-              isChooser(socket.id, chooser.id) || phase === "score"
+              checkChooser(socket.id) || phase === "score"
                 ? "visible"
                 : "hidden",
             background: "red",
@@ -224,7 +233,7 @@ const Game = () => {
         />
       </div>
       <div className="game-guessContainer">
-        {isChooser(socket.id, chooser.id) ? (
+        {checkChooser(socket.id) ? (
           <SelectVideo
             phase={phase}
             updatePhase={updatePhase}
@@ -241,15 +250,25 @@ const Game = () => {
       </div>
       <div className="game-allUsersContainer">
         <UserList
-          chooser={chooser}
+          checkChooser={checkChooser}
+          selectWinner={selectWinner}
           users={Object.values(allUsers)}
           phase={phase}
           submitSelected={submitSelected}
         />
         {phase === "score" && (
-          <Button type="primary" onClick={submitSelected}>
-            Submit
-          </Button>
+          <>
+            {
+              winners.map(winner => {
+                return (
+                  <p>{winner.name}</p>
+                )
+              })
+            }
+            <Button type="primary" onClick={submitSelected}>
+              Submit
+            </Button>
+          </>
         )}
       </div>
     </div>
