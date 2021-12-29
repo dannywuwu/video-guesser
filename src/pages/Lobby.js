@@ -63,7 +63,7 @@ const Lobby = () => {
   // listen and render users
   useEffect(() => {
     if (socket) {
-      socket.on("display-users", (users) => {
+      socket.once("display-users", (users) => {
         setAllUsers(users);
       });
     }
@@ -73,7 +73,7 @@ const Lobby = () => {
   useEffect(() => {
     console.log(room);
     if (socket) {
-      socket.on("update-room", (newRoom) => {
+      socket.once("update-room", (newRoom) => {
         setRoom(newRoom);
       });
     }

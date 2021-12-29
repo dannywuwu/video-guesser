@@ -3,12 +3,12 @@ import SearchVideo from "./SearchVideo";
 
 const SearchContainer = ({
   setPhase,
-  setSelectedVideo,
+  selectVideo,
   setIsSearchVisible,
 }) => {
   return (
     <div>
-      <SearchVideo setIsSearchVisible={setIsSearchVisible} setPhase={setPhase} setSelectedVideo={setSelectedVideo} />
+      <SearchVideo setIsSearchVisible={setIsSearchVisible} setPhase={setPhase} selectVideo={selectVideo} />
     </div>
   );
 };
