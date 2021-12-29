@@ -129,6 +129,7 @@ const Game = () => {
     // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
+    setProgress(0);
     setWinners([])
     updatePhase("search")
   };
@@ -149,6 +150,9 @@ const Game = () => {
       console.log(winners, selectedVideo)
     } else if (phase === "guess") {
       // start the video timer
+
+
+      
       startVideoTimer(progress, setProgress, videoTime);
     } else if (phase === "score") {
       // the 'score' phase...
@@ -156,7 +160,7 @@ const Game = () => {
     } else {
       // the 'end' phase
       // call nextRound() to reset all the states at the end (we need a different state)
-      // nextRound()
+      nextRound()
     }
   }, [phase]);
 
@@ -175,7 +179,7 @@ const Game = () => {
     }
   }, [room]);
 
-  console.log(checkChooser(user.id), user.id, chooser.id)
+  console.log(progress)
 
 
   // selecting winner 
