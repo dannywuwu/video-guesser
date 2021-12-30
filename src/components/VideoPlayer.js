@@ -20,6 +20,8 @@ const VideoPlayer = (props) => {
   const [bufferStatus, setBufferStatus] = useState(false);
   // video length in seconds
   const [duration, setDuration] = useState(0);
+  // player visibility
+  const [visible, setVisible] = useState(false);
 
   const seek = (time) => {
     ref.seekTo(time, "seconds");
@@ -27,6 +29,11 @@ const VideoPlayer = (props) => {
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
+    // finished preview, pause and seek to playStart
+    if (_progress.playedSeconds >= playEnd) {
+      seek(playStart);
+      setPlaying(false);
+    }
   };
 
   const handlePlaying = () => {
@@ -40,6 +47,10 @@ const VideoPlayer = (props) => {
 
   const handleDuration = (_duration) => {
     setDuration(_duration);
+  };
+
+  const handleVisibility = () => {
+    setVisible(!visible);
   };
 
   // basic notification wrapper
@@ -82,11 +93,12 @@ const VideoPlayer = (props) => {
                 const minutes = date.getMinutes();
                 const seconds = date.getSeconds();
                 const time = minutes * 60 + seconds;
-                console.log("time", time);
                 // seek video to selected time if within duration
                 if (time < duration) {
                   seek(time);
                   setPlaying(true);
+                  // set play start/end
+                  setPlayStart(time);
                   // end playing after 20 seconds
                   setPlayEnd(time + 20);
                 } else {
@@ -97,6 +109,9 @@ const VideoPlayer = (props) => {
                 }
               }}
             />
+            <Button onClick={handleVisibility}>
+              {visible ? "Hide Video" : "Display Video"}
+            </Button>
           </div>
         </div>
       )}
