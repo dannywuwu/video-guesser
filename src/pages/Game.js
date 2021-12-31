@@ -116,7 +116,9 @@ const Game = () => {
     // returns info for the one vid you select
     console.log("update video")
     socket.emit("update-video", video);
-    updatePhase("guess");
+    if (phase === "search") {
+      updatePhase("guess");
+    }
   };
 
   const updatePhase = (newPhase) => {
@@ -129,6 +131,7 @@ const Game = () => {
     // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
+    updateChooser(socket, user.room);
     setProgress(0);
     setWinners([])
     updatePhase("search")
@@ -178,9 +181,6 @@ const Game = () => {
       console.log("socket is null at display-room");
     }
   }, [room]);
-
-  console.log(progress)
-
 
   // selecting winner 
 
