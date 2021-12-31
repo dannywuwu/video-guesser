@@ -3,6 +3,8 @@ import ReactPlayer from "react-player/youtube";
 import { Button, TimePicker, notification } from "antd";
 import SearchContainer from "./SearchContainer";
 
+import "../styles/videoPlayer/videoPlayer.css";
+
 // TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
   const { url, searchPhase } = props;
@@ -13,7 +15,7 @@ const VideoPlayer = (props) => {
   const [ref, setRef] = useState(null);
   // timestamps for play start/end
   const [playStart, setPlayStart] = useState(0);
-  const [playEnd, setPlayEnd] = useState(0);
+  const [playEnd, setPlayEnd] = useState(20);
   // progress obj
   const [progress, setProgress] = useState(null);
   // video buffer state
@@ -68,7 +70,8 @@ const VideoPlayer = (props) => {
         <SearchContainer />
       ) : (
         <div className="player-container">
-          <div className="react-player">
+          {/* toggle blur on player */}
+          <div className="react-player" className={`${visible ? "" : "blur"}`}>
             <ReactPlayer
               ref={setRef}
               url={url}
@@ -85,6 +88,7 @@ const VideoPlayer = (props) => {
             <Button onClick={handlePlaying}>
               {playing ? "Pause Preview" : "Play Preview"}
             </Button>
+            {/* start time picker */}
             <TimePicker
               format={"mm:ss"}
               showNow={false}
@@ -110,7 +114,7 @@ const VideoPlayer = (props) => {
               }}
             />
             <Button onClick={handleVisibility}>
-              {visible ? "Hide Video" : "Display Video"}
+              {visible ? "Blur Video" : "Unblur Video"}
             </Button>
           </div>
         </div>
