@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import ReactPlayer from "react-player/youtube";
 import { Button, TimePicker, notification } from "antd";
 import SearchContainer from "./SearchContainer";
@@ -63,6 +63,9 @@ const VideoPlayer = (props) => {
       description,
     });
   };
+  useEffect(() => {
+    console.log(url);
+  }, [url]);
 
   return (
     <div>
