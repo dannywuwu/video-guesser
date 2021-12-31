@@ -71,9 +71,9 @@ const Lobby = () => {
 
   // listen and update the room
   useEffect(() => {
-    console.log(room);
     if (socket) {
       socket.once("update-room", (newRoom) => {
+        debugger;
         setRoom(newRoom);
       });
     }
@@ -86,6 +86,7 @@ const Lobby = () => {
     }
   }, [isReady]);
 
+
   // fetch ready players and render ready
   useEffect(() => {
     if (socket) {
@@ -97,11 +98,12 @@ const Lobby = () => {
         }
       });
       // all players are ready, game start - need at least 2 players
-      if (readyUsers.length === Object.keys(allUsers).length) {
+      if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
         // debugger;
         console.log("game start");
-        setRedirect(true);
-        // setCountDown(true);
+        debugger;
+        setCountDown(true);
+        // setRedirect(true);  
       } else {
         setCountDown(false);
       }

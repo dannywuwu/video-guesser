@@ -23,6 +23,8 @@ export const defaultVideoModel = {
   videoURL: ""
 };
 
+
+
 export function RoomProvider({ children }) {
   const defaultRoom = roomFactory(
     "default-rName", // client socket id
@@ -31,7 +33,6 @@ export function RoomProvider({ children }) {
     "search",// phase
     defaultVideoModel,
     defaultChooserModel,
-
   );
 
   const [room, setRoom] = useState(defaultRoom);

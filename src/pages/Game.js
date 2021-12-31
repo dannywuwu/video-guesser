@@ -67,13 +67,15 @@ const Game = () => {
     }
   }, [progress]);
 
+
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
     console.log("GAMEJS", user);
     if (socket) {
       // emits to the back, and updates the chosen user
-      updateChooser(socket, user.room);
+      debugger;
+      socket.emit("choose-chooser", room);
     }
     return () => {
       // if socket is undefined, that mean user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
@@ -88,6 +90,7 @@ const Game = () => {
   useEffect(() => {
     if (socket) {
       socket.once("chooser-chosen", (newChooser) => {
+        console.log("current chooser", chooser)
         if (newChooser) {
           setChooser(newChooser);
           console.log("you", user);
@@ -131,11 +134,12 @@ const Game = () => {
     // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
-    updateChooser(socket, user.room);
+    socket.emit("choose-chooser", room);
     setProgress(0);
     setWinners([]);
     updatePhase("search");
   };
+
 
   // take in a users guess and the emit that
   const updateGuess = (value) => {
@@ -153,14 +157,13 @@ const Game = () => {
       console.log(winners, selectedVideo);
     } else if (phase === "guess") {
       // start the video timer
-
       startVideoTimer(progress, setProgress, videoTime);
     } else if (phase === "score") {
       // the 'score' phase...
     } else {
       // the 'end' phase
       // call nextRound() to reset all the states at the end (we need a different state)
-      nextRound();
+      // nextRound();
     }
   }, [phase]);
 

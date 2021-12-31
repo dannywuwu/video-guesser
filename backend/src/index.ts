@@ -112,8 +112,10 @@ io.on("connection", (socket: any) => {
   });
 
   // choosing the chooser phase
-  socket.on("choose-chooser", (roomName: string) => {
+  socket.on("choose-chooser", (room: Room) => {
+    const roomName = room.rName;
     // increment the turn counter for this room
+    console.log("chooser-chooser", rooms)
     if (rooms[roomName]) {
       const roomTurn = ++rooms[roomName].turn;
       console.log("roomTurn", roomTurn);
@@ -134,7 +136,7 @@ io.on("connection", (socket: any) => {
       rooms[roomName].chooser = newChooser;
       io.to(roomName).emit("chooser-chosen", newChooser);
     } else {
-      console.log("rooms[rName] is null at choose-chooser");
+      console.log("rooms[rName] ", roomName, "is null at choose-chooser");
     }
   });
 
