@@ -75,7 +75,7 @@ const Game = () => {
     if (socket) {
       // emits to the back, and updates the chosen user
       debugger;
-      socket.emit("choose-chooser", room);
+      socket.emit("choose-chooser", room.rName);
     }
     return () => {
       // if socket is undefined, that mean user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
@@ -134,12 +134,16 @@ const Game = () => {
     // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
-    socket.emit("choose-chooser", room);
+    debugger;
+    socket.emit("update-turn", room, () => {
+      socket.emit("choose-chooser", room.rName);
+
+    })
     setProgress(0);
     setWinners([]);
     updatePhase("search");
   };
-
+  console.log(room.turn)
 
   // take in a users guess and the emit that
   const updateGuess = (value) => {
@@ -163,7 +167,7 @@ const Game = () => {
     } else {
       // the 'end' phase
       // call nextRound() to reset all the states at the end (we need a different state)
-      // nextRound();
+      nextRound();
     }
   }, [phase]);
 
@@ -174,7 +178,7 @@ const Game = () => {
       socket.once("display-room", (room, updatedProperties) => {
         console.log(updatedProperties);
         updatedProperties.forEach((property) => {
-          setRoom((prev) => ({ ...prev, [property]: room[property] }));
+          setRoom((prev) => ({ ...prev, [property]: room[property]}));
         });
       });
     } else {

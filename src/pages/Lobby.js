@@ -73,7 +73,6 @@ const Lobby = () => {
   useEffect(() => {
     if (socket) {
       socket.once("update-room", (newRoom) => {
-        debugger;
         setRoom(newRoom);
       });
     }
@@ -101,9 +100,8 @@ const Lobby = () => {
       if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
         // debugger;
         console.log("game start");
-        debugger;
-        setCountDown(true);
-        // setRedirect(true);  
+        // setCountDown(true);
+        setRedirect(true);  
       } else {
         setCountDown(false);
       }

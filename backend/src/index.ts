@@ -112,17 +112,18 @@ io.on("connection", (socket: any) => {
   });
 
   // choosing the chooser phase
-  socket.on("choose-chooser", (room: Room) => {
-    const roomName = room.rName;
+  socket.on("choose-chooser", (rName: string) => {
     // increment the turn counter for this room
-    console.log("chooser-chooser", rooms)
-    if (rooms[roomName]) {
-      const roomTurn = ++rooms[roomName].turn;
-      console.log("roomTurn", roomTurn);
-      const roomUsers = getUsersInRoom(rooms, roomName);
-      // chooser ID from [1, # users in room]
+    // console.log("chooser-chooser", rooms)
+    const room = rooms[rName]
+    if (room) {
+      // updating chooser
+      const roomTurn = room.turn;
+      const roomUsers = getUsersInRoom(rooms, rName);
+      // chooser ID from [0, # users in room]
       let newChooserID;
       for (const userID in roomUsers) {
+        console.log("choose-chooser", roomUsers[userID], roomTurn)
         if (
           roomUsers[userID].position ===
           roomTurn % Object.keys(roomUsers).length
@@ -133,12 +134,24 @@ io.on("connection", (socket: any) => {
       // update chooser for room
       const newChooser = getUser(users, newChooserID);
       console.log("new chooser is " + newChooserID, newChooser);
-      rooms[roomName].chooser = newChooser;
-      io.to(roomName).emit("chooser-chosen", newChooser);
+      room.chooser = newChooser;
+      io.to(rName).emit("chooser-chosen", newChooser);
     } else {
-      console.log("rooms[rName] ", roomName, "is null at choose-chooser");
+      console.log("rooms[rName] or room.chooser is null at choose-chooser", room);
     }
   });
+
+  // incrementing turn
+  socket.on("update-turn", (room: Room, callBack: any) => {
+    const rName = room.rName;
+    if (rooms[rName] && rooms[rName].chooser && rooms[rName].chooser!.id === clientUser.id ) {
+      rooms[rName].turn += 1;
+      console.log("room turn", rooms[rName].turn);
+      io.to(rName).emit("display-room", rooms[rName], ["turn"]);
+      callBack();
+    }
+  })
+
 
   // update the users guesses
   socket.on("update-guess", (guess: string) => {
