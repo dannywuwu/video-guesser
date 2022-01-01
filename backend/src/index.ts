@@ -225,6 +225,11 @@ io.on("connection", (socket: any) => {
     }
   });
 
+  // toggle video playfor all in room
+  socket.on("toggle-play", (playing: boolean, rName: string) => {
+    io.to(rName).emit("toggle-play", !playing);
+  });
+
   // user leave room
   socket.on("leave-room", (rName: string, user: User) => {
     const room = rooms[rName];

@@ -38,7 +38,8 @@ const VideoPlayer = (props) => {
   };
 
   const handlePlaying = () => {
-    setPlaying(!playing);
+    // toggle video playing status
+    socket.emit("toggle-play", playing, rName);
   };
 
   // set play start time to current progress time
@@ -54,6 +55,15 @@ const VideoPlayer = (props) => {
     // toggle video blur
     socket.emit("toggle-blur", !visible, rName);
   };
+
+  // toggle video playing status
+  useEffect(() => {
+    if (socket) {
+      socket.once("toggle-play", (newStatus) => {
+        setPlaying(newStatus);
+      });
+    }
+  }, [playing]);
 
   // listen to blur emit
   useEffect(() => {
