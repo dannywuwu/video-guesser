@@ -217,14 +217,6 @@ const Game = () => {
           showInfo={false}
         />
       </div>
-      {/* <h1>chooser is {chooser.id}</h1> */}
-      {/* <h3
-          style={{
-            visibility: checkChooser() ? "hidden" : "visible",
-          }}
-        >
-          if you are not a chooser you can see this
-        </h3> */}
       <div
         className="game-VideoPlayer"
         style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
@@ -233,7 +225,7 @@ const Game = () => {
           // props
           url={selectedVideo["videoURL"]}
           selectedPhase={phase}
-          //
+          chooserStatus={checkChooser(socket.id)}
           style={{
             visibility:
               checkChooser(socket.id) || phase === "score"
