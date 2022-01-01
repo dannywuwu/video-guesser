@@ -226,6 +226,8 @@ const Game = () => {
           url={selectedVideo["videoURL"]}
           selectedPhase={phase}
           chooserStatus={checkChooser(socket.id)}
+          socket={socket}
+          rName={room.rName}
           style={{
             visibility:
               checkChooser(socket.id) || phase === "score"

@@ -218,11 +218,7 @@ io.on("connection", (socket: any) => {
   // blur video for all in room
   socket.on("toggle-blur", (visibility: boolean, rName: string) => {
     // blur based on visibility
-    if (visibility === false) {
-      io.to(rName).emit("blur-video");
-    } else {
-      io.to(rName).emit("unblur-video");
-    }
+    io.to(rName).emit("toggle-blur", !visibility);
   });
 
   // toggle video playfor all in room

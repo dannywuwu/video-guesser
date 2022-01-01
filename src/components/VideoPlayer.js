@@ -38,8 +38,13 @@ const VideoPlayer = (props) => {
   };
 
   const handlePlaying = () => {
-    // toggle video playing status
-    socket.emit("toggle-play", playing, rName);
+    // toggle video playing status for all during guess phase
+    if (selectedPhase === "guess") {
+      socket.emit("toggle-play", playing, rName);
+    } else {
+      // only toggle preview locally for other phases
+      setPlaying(!playing);
+    }
   };
 
   // set play start time to current progress time
@@ -56,11 +61,11 @@ const VideoPlayer = (props) => {
     socket.emit("toggle-blur", !visible, rName);
   };
 
-  // toggle video playing status
+  // listen to video toggle
   useEffect(() => {
     if (socket) {
-      socket.once("toggle-play", (newStatus) => {
-        setPlaying(newStatus);
+      socket.once("toggle-play", (playStatus) => {
+        setPlaying(playStatus);
       });
     }
   }, [playing]);
@@ -68,17 +73,8 @@ const VideoPlayer = (props) => {
   // listen to blur emit
   useEffect(() => {
     if (socket) {
-      socket.once("blur-video", () => {
-        setVisible(false);
-      });
-    }
-  }, [visible]);
-
-  // listen to unblur emit
-  useEffect(() => {
-    if (socket) {
-      socket.once("unblur-video", () => {
-        setVisible(true);
+      socket.once("toggle-blur", (blurStatus) => {
+        setVisible(blurStatus);
       });
     }
   }, [visible]);
