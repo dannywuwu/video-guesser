@@ -6,7 +6,7 @@ import "../styles/videoPlayer/videoPlayer.css";
 
 // TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
-  const { url, selectedPhase, chooserStatus } = props;
+  const { url, selectedPhase, chooserStatus, socket, rName } = props;
 
   // playing/paused
   const [playing, setPlaying] = useState(false);
@@ -51,8 +51,27 @@ const VideoPlayer = (props) => {
   };
 
   const handleVisibility = () => {
-    setVisible(!visible);
+    // toggle video blur
+    socket.emit("toggle-blur", !visible, rName);
   };
+
+  // listen to blur emit
+  useEffect(() => {
+    if (socket) {
+      socket.once("blur-video", () => {
+        setVisible(false);
+      });
+    }
+  }, [visible]);
+
+  // listen to unblur emit
+  useEffect(() => {
+    if (socket) {
+      socket.once("unblur-video", () => {
+        setVisible(true);
+      });
+    }
+  }, [visible]);
 
   // basic notification wrapper
   const notify = (data) => {
@@ -62,9 +81,6 @@ const VideoPlayer = (props) => {
       description,
     });
   };
-  useEffect(() => {
-    console.log(url);
-  }, [url]);
 
   return (
     <div>
