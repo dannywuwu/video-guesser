@@ -54,8 +54,8 @@ const Lobby = () => {
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
+        debugger;
         if (readyUsers.length !== Object.keys(allUsers).length) {
-          console.log("lobbyks leave-room", readyUsers, Object.keys(allUsers));
           // console.log("socket.emit leave-room", u)
           socket.emit("leave-room", user.room, user);
           // re-render ready users
