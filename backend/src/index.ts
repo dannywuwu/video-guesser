@@ -117,7 +117,7 @@ io.on("connection", (socket: any) => {
   socket.on("choose-chooser", (rName: string) => {
     // increment the turn counter for this room
     // console.log("chooser-chooser", rooms)
-    const room = rooms[rName]
+    const room = rooms[rName];
     if (room) {
       // updating chooser
       const roomTurn = room.turn;
@@ -125,7 +125,7 @@ io.on("connection", (socket: any) => {
       // chooser ID from [0, # users in room]
       let newChooserID;
       for (const userID in roomUsers) {
-        console.log("choose-chooser", roomUsers[userID], roomTurn)
+        console.log("choose-chooser", roomUsers[userID], roomTurn);
         if (
           roomUsers[userID].position ===
           roomTurn % Object.keys(roomUsers).length
@@ -139,21 +139,27 @@ io.on("connection", (socket: any) => {
       room.chooser = newChooser;
       io.to(rName).emit("chooser-chosen", newChooser);
     } else {
-      console.log("rooms[rName] or room.chooser is null at choose-chooser", room);
+      console.log(
+        "rooms[rName] or room.chooser is null at choose-chooser",
+        room
+      );
     }
   });
 
   // incrementing turn
   socket.on("update-turn", (room: Room, callBack: any) => {
     const rName = room.rName;
-    if (rooms[rName] && rooms[rName].chooser && rooms[rName].chooser!.id === clientUser.id ) {
+    if (
+      rooms[rName] &&
+      rooms[rName].chooser &&
+      rooms[rName].chooser!.id === clientUser.id
+    ) {
       rooms[rName].turn += 1;
       console.log("room turn", rooms[rName].turn);
       io.to(rName).emit("display-room", rooms[rName], ["turn"]);
       callBack();
     }
-  })
-
+  });
 
   // update the users guesses
   socket.on("update-guess", (guess: string) => {
@@ -196,22 +202,31 @@ io.on("connection", (socket: any) => {
     }
   });
 
-  // add points to the winners 
+  // add points to the winners
   socket.on("add-points", (winners: Array<User>) => {
     if (clientUser && clientUser.room) {
-      winners.forEach(winner => {
-        const user = getUser(users, winner.id)
+      winners.forEach((winner) => {
+        const user = getUser(users, winner.id);
         user.points += 1;
-        
-      })
+      });
       const rName = clientUser.room;
       const room = rooms[rName];
       io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
     } else {
-      console.log("clientUser is null at add-points")
+      console.log("clientUser is null at add-points");
     }
+  });
 
-  })
+  // blur video for all in room
+  socket.on("toggle-blur", (visibility: boolean, rName: string) => {
+    // blur based on visibility
+    io.to(rName).emit("toggle-blur", !visibility);
+  });
+
+  // toggle video playfor all in room
+  socket.on("toggle-play", (playing: boolean, rName: string) => {
+    io.to(rName).emit("toggle-play", !playing);
+  });
 
   // user leave room
   socket.on("leave-room", (rName: string, user: User) => {
