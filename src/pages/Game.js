@@ -15,6 +15,8 @@ import {
 } from "../actions/gameActions";
 import SelectVideo from "../components/SelectVideo";
 import { useRoom, defaultChooserModel } from "../context/RoomProvider";
+import Leaderboard from "../components/Leaderboard";
+import { sortLeaderboard } from "../actions/gameActions";
 
 const defaultVideoModel = {
   title: "title",
@@ -23,7 +25,8 @@ const defaultVideoModel = {
   videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
-const videoTime = 1;
+const videoTime = 20;
+const pointCap = 3;
 
 const Game = () => {
   // ******************* states and variables ********************* //
@@ -31,6 +34,7 @@ const Game = () => {
   // loadinng contexts
   const socket = useSocket();
   const { user, setUser, allUsers, setAllUsers } = useUser();
+  const sortedUsers = Object.values(allUsers).sort(sortLeaderboard);
   const { room, setRoom } = useRoom();
 
   // the user that's choosing the video
@@ -76,9 +80,12 @@ const Game = () => {
       socket.emit("choose-chooser", room.rName);
     }
     return () => {
-      // if socket is undefined, that mean user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
+      // if socket is undefined, that means user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
       // else, "leave-room" will remove it
-      if (socket) {
+      // also, we don't want to leave-room if we're simply just returning back to the lobby\
+      debugger;
+      if (socket && sortedUsers.slice(0, 1)[0].points !== pointCap) {
+        console.log(sortedUsers.slice(0,1)[0], pointCap, sortedUsers.slice(0, 1)[0].points !== pointCap)
         socket.emit("leave-room", user.room, user);
       }
     };
@@ -139,7 +146,6 @@ const Game = () => {
     setWinners([]);
     updatePhase("search");
   };
-  console.log(room.turn);
 
   // take in a users guess and the emit that
   const updateGuess = (value) => {
@@ -211,31 +217,46 @@ const Game = () => {
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
+      {sortedUsers.slice(0, 1)[0].points === pointCap && <Redirect to="lobby"/>}
       <div className="game-progressBar">
         <Progress
           percent={(progress["percent"] / videoTime) * 100}
           showInfo={false}
         />
       </div>
-      <div
-        className="game-VideoPlayer"
-        style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
-      >
-        <VideoPlayer
-          // props
-          url={selectedVideo["videoURL"]}
-          selectedPhase={phase}
-          chooserStatus={checkChooser(socket.id)}
-          socket={socket}
-          rName={room.rName}
+      {/* <h1>chooser is {chooser.id}</h1> */}
+      {/* <h3
           style={{
-            visibility:
-              checkChooser(socket.id) || phase === "score"
-                ? "visible"
-                : "hidden",
-            background: "red",
+            visibility: checkChooser() ? "hidden" : "visible",
           }}
-        />
+        >
+          if you are not a chooser you can see this
+        </h3> */}
+      <div className="game-mainDisplay">
+        <div className="game-leaderboard">
+          <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
+        </div>
+        <div
+          className="game-VideoPlayer"
+          style={{ background: "#ddd", width: "640px", margin: "0 auto" }}
+        >
+          <VideoPlayer
+            // props
+            url={selectedVideo["videoURL"]}
+            selectedPhase={phase}
+            //
+            style={{
+              visibility:
+                checkChooser(socket.id) || phase === "score"
+                  ? "visible"
+                  : "hidden",
+              background: "red",
+            }}
+          />
+        </div>
+        <div className="game-leaderboard">
+          <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
+        </div>
       </div>
       <div className="game-guessContainer">
         {checkChooser(socket.id) ? (

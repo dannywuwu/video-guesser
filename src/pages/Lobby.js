@@ -40,17 +40,22 @@ const Lobby = () => {
   useEffect(() => {
     if (socket) {
       // user joins a room
-      socket.emit("join-room", user.name, user.room, (users) => {
-        // get all users in room
-        console.log("joining room as ", user);
-        setAllUsers(users);
-      });
+      if (room.rName === "default-rName") {
+        // user not in a room yet
+        socket.emit("join-room", user.name, user.room, (users) => {
+          // get all users in room
+          console.log("joining room as ", user);
+          setAllUsers(users);
+        });
+      } else {
+        console.log("coming back from game.js")
+      }
 
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
+        debugger;
         if (readyUsers.length !== Object.keys(allUsers).length) {
-          console.log("lobbyks leave-room", readyUsers, Object.keys(allUsers));
           // console.log("socket.emit leave-room", u)
           socket.emit("leave-room", user.room, user);
           // re-render ready users
