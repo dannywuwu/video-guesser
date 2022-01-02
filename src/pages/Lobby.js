@@ -40,11 +40,16 @@ const Lobby = () => {
   useEffect(() => {
     if (socket) {
       // user joins a room
-      socket.emit("join-room", user.name, user.room, (users) => {
-        // get all users in room
-        console.log("joining room as ", user);
-        setAllUsers(users);
-      });
+      if (room.rName === "default-rName") {
+        // user not in a room yet
+        socket.emit("join-room", user.name, user.room, (users) => {
+          // get all users in room
+          console.log("joining room as ", user);
+          setAllUsers(users);
+        });
+      } else {
+        console.log("coming back from game.js")
+      }
 
       // emits leave-room when user leaves
       return () => {

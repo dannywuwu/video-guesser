@@ -19,3 +19,11 @@ export const startVideoTimer = (progress, setProgress, videoTime) => {
   }, 100);
   setProgress((prev) => ({ ...prev, intervalID: interval }));
 };
+
+export const sortLeaderboard = (user1, user2) => {
+  if (user1.points < user2.points) {
+    return 1
+  } else {
+    return -1
+  }
+}

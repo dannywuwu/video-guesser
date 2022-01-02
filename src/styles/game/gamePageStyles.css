@@ -24,4 +24,13 @@
 .game-root > div {
   margin: 10px 0;
 }
+
+.game-mainDisplay {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
 /*# sourceMappingURL=gamePageStyles.css.map */

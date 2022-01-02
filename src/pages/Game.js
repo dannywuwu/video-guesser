@@ -15,6 +15,7 @@ import {
 } from "../actions/gameActions";
 import SelectVideo from "../components/SelectVideo";
 import { useRoom, defaultChooserModel } from "../context/RoomProvider";
+import Leaderboard from "../components/Leaderboard";
 
 const defaultVideoModel = {
   title: "title",
@@ -23,7 +24,8 @@ const defaultVideoModel = {
   videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
-const videoTime = 1;
+const videoTime = 20;
+const pointCap = 10;
 
 const Game = () => {
   // ******************* states and variables ********************* //
@@ -67,14 +69,12 @@ const Game = () => {
     }
   }, [progress]);
 
-
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
     console.log("GAMEJS", user);
     if (socket) {
       // emits to the back, and updates the chosen user
-      debugger;
       socket.emit("choose-chooser", room.rName);
     }
     return () => {
@@ -90,7 +90,7 @@ const Game = () => {
   useEffect(() => {
     if (socket) {
       socket.once("chooser-chosen", (newChooser) => {
-        console.log("current chooser", chooser)
+        console.log("current chooser", chooser);
         if (newChooser) {
           setChooser(newChooser);
           console.log("you", user);
@@ -134,16 +134,13 @@ const Game = () => {
     // reset user search, guesses, winners
     updateVideo(defaultVideoModel);
     updateGuess(defaultChooserModel.guess);
-    debugger;
     socket.emit("update-turn", room, () => {
       socket.emit("choose-chooser", room.rName);
-
-    })
+    });
     setProgress(0);
     setWinners([]);
     updatePhase("search");
   };
-  console.log(room.turn)
 
   // take in a users guess and the emit that
   const updateGuess = (value) => {
@@ -178,7 +175,7 @@ const Game = () => {
       socket.once("display-room", (room, updatedProperties) => {
         console.log(updatedProperties);
         updatedProperties.forEach((property) => {
-          setRoom((prev) => ({ ...prev, [property]: room[property]}));
+          setRoom((prev) => ({ ...prev, [property]: room[property] }));
         });
       });
     } else {
@@ -229,23 +226,31 @@ const Game = () => {
         >
           if you are not a chooser you can see this
         </h3> */}
-      <div
-        className="game-VideoPlayer"
-        style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
-      >
-        <VideoPlayer
-          // props
-          url={selectedVideo["videoURL"]}
-          selectedPhase={phase}
-          //
-          style={{
-            visibility:
-              checkChooser(socket.id) || phase === "score"
-                ? "visible"
-                : "hidden",
-            background: "red",
-          }}
-        />
+      <div className="game-mainDisplay">
+        <div className="game-leaderboard">
+          <Leaderboard users={Object.values(allUsers)} />
+        </div>
+        <div
+          className="game-VideoPlayer"
+          style={{ background: "#ddd", width: "640px", margin: "0 auto" }}
+        >
+          <VideoPlayer
+            // props
+            url={selectedVideo["videoURL"]}
+            selectedPhase={phase}
+            //
+            style={{
+              visibility:
+                checkChooser(socket.id) || phase === "score"
+                  ? "visible"
+                  : "hidden",
+              background: "red",
+            }}
+          />
+        </div>
+        <div className="game-leaderboard">
+          <Leaderboard users={Object.values(allUsers)} />
+        </div>
       </div>
       <div className="game-guessContainer">
         {checkChooser(socket.id) ? (
