@@ -1,44 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useUser } from "../context/UserProvider";
 import { useSocket } from "../context/SocketProvider";
 import userFactory from "../hooks/userFactory";
+
 // ant design
 import "../styles/antd.css";
-import { Button, Space, Typography, Modal, Form, Input, Row, Col } from "antd";
+import { Button, Typography, Form, Input, Row, Col } from "antd";
 
 const { Title } = Typography;
 
 const Home = () => {
   const history = useHistory();
-  const socket = useSocket();
+  const clientSocket = useSocket();
   const { user, setUser } = useUser();
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isJoin, setIsJoin] = useState(false); // joining or creating?
 
-  useEffect(() => {
-    // console.log(user, socket.id)
-  }, []);
-
+  // value is value of form
   const onFinish = (value) => {
-    setIsModalVisible(false);
-    // redirect to Game page
-    if (isJoin) console.log("these nuts");
-    else {
-      setUser(
-        userFactory(
-          socket.id,
-          0,
-          value.user.name,
-          value.user.room,
-          "",
-          "",
-          false
-        )
-      );
-      history.push(`/lobby/${value.user.room}`);
-    }
+    const { formUser } = value;
+    const { name, room } = formUser;
+
+    // ensure that we have established a websocket connection with server before continuing
+
+    // set user data according to form data
+    clientSocket.emit("set-user", clientSocket.id, name, room, (u) => {
+      setUser(u);
+      // redirect to existing Game page if room already exists
+      // TODO check if join and redirect
+      if (isJoin) console.log("TODO: Redirect if room exists");
+      else {
+        // create new lobby
+        history.push(`/lobby/${room}`);
+      }
+    });
   };
 
   return (
@@ -46,7 +42,7 @@ const Home = () => {
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
       <Col xs={8} md={4}>
         <Form
-          id="myForm"
+          id="loginForm"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           initialValues={{ remember: true }}
@@ -61,7 +57,7 @@ const Home = () => {
             Game Title
           </Title>
           <Form.Item
-            name={["user", "name"]}
+            name={["formUser", "name"]}
             rules={[
               { required: true, message: "Please input your display name!" },
             ]}
@@ -75,7 +71,7 @@ const Home = () => {
           </Form.Item>
 
           <Form.Item
-            name={["user", "room"]}
+            name={["formUser", "room"]}
             rules={[{ required: true, message: "Please input the room name!" }]}
             noStyle={true}
           >

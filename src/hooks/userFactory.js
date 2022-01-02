@@ -1,16 +1,15 @@
-const userFactory = (id, order, name, room, points, isChooser, guess) => {
+const userFactory = (id, position, name, room, points, guess) => {
   return {
-      id: id,
-      order: order,
-      name: name,
-      room: room,
-      points: points,
-      guess: guess,
-      isChooser: isChooser,
+    id: id,
+    position: position,
+    name: name,
+    room: room,
+    points: points,
+    guess: guess,
 
-      info() {
-          return `${this.id} ${this.name}, ${this.room}`;
-      }
+    info() {
+      return `${this.id} ${this.name}, ${this.room}`;
+    },
   };
 };
 

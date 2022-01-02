@@ -8,19 +8,19 @@ export function useUser() {
 }
 
 export function UserProvider({ children }) {
-  let defaultUser = userFactory(
-    0,
-    0,
-    "default-user",
-    "default-room",
-    "",
-    "",
-    false
+  const defaultUser = userFactory(
+    "default-id", // client socket id
+    undefined, // position
+    undefined, // name
+    undefined, // room
+    0, // points
+    undefined // guess
   );
   const [user, setUser] = useState(defaultUser);
-  const [allUsers, setAllUsers] = useState([user]);
+  // allUsers maps from {uid -> user object}
+  const [allUsers, setAllUsers] = useState({});
 
-  let value = { user, setUser, allUsers, setAllUsers };
+  const value = { user, setUser, allUsers, setAllUsers };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

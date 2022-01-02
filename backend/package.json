@@ -4,10 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start:build": "tsc -w",
-    "start:run": "nodemon build/index.js",
-    "start": "concurrently npm:start:*",
-    "dev": "concurrently npm:start:*",
+    "dev:build": "tsc -w",
+    "dev:run": "nodemon --inspect build/index.js -r .env",
+    "start": "concurrently npm:dev:*",
+    "dev": "concurrently npm:dev:*",
     "test:watch": "jest --watchAll",
     "test:all": "jest --watchAll --verbose --coverage",
     "test": "concurrently \"npm:test:watch\"  \"npm:start:build\""
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "concurrently": "^6.3.0",
-    "typescript": "^4.4.4"
+    "dotenv": "^10.0.0",
+    "typescript": "^4.5.4"
   }
 }

@@ -18,7 +18,7 @@ const userFactory = (id: string, name: string, room: string): User => {
     room: room,
     points: 0,
     position: undefined,
-    guess: undefined,
+    guess: "__________",
     info(): string {
       return `${this.id} ${this.name}, ${this.room}`;
     },

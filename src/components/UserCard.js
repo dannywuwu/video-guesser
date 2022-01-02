@@ -7,12 +7,13 @@ const toggleSelect = () => {
 };
 
 const UserCard = (props) => {
-  const { name, points, guess } = props;
+  const { name, points, guess, isChooser, phase, selectWinner} = props;
+
 
   // Meta component for card
   const { Meta } = Card;
   return (
-    <Card title={`${guess}`} hoverable onClick={() => toggleSelect}>
+    <Card title={`${guess}`} style={isChooser ? {background: "#ff7875"} : {}} hoverable={true}>
       <Meta title={name} description={`Points: ${points}`} />
     </Card>
   );

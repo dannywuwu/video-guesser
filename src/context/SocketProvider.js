@@ -1,36 +1,40 @@
-import React, { useEffect, useState, useContext } from 'react'
-import io from 'socket.io-client'
+import React, { useEffect, useState, useContext } from "react";
+import { io } from "socket.io-client";
 
-const SocketContext = React.createContext()
+const SocketContext = React.createContext();
 
 export function useSocket() {
-  return useContext(SocketContext)
+  return useContext(SocketContext);
 }
 export function SocketProvider({ children }) {
-  const [socket, setSocket] = useState()
+  const [clientSocket, setClientSocket] = useState();
 
+  // sets clientSocket after server ack
   useEffect(() => {
-    const temp_socket = io("https://song-searcher-backend-thing.weelam.repl.co")
-    temp_socket.on('connect', () => {
-      console.log(temp_socket.id) 
-      setSocket(temp_socket)
-    }, [])
-    
-    // temp_socket.emit("join-room", name, room, (user) => {
-    //   console.log(user)
-    // })
-
+    const tempSocket = io("http://localhost:5000");
+    tempSocket.on(
+      "connect",
+      () => {
+        console.log("Connect", tempSocket.id);
+        setClientSocket(tempSocket);
+      },
+      []
+    );
 
     return () => {
-      temp_socket.disconnect()
-      temp_socket.off()
-    }
-  }, [])
+      tempSocket.disconnect();
+      tempSocket.off();
+    };
+  }, []);
+
+  // debug client socket
+  // useEffect(() => {
+  //   console.log("client socket", clientSocket);
+  // }, [clientSocket]);
+
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={clientSocket}>
       {children}
     </SocketContext.Provider>
-  )
+  );
 }
-
-
