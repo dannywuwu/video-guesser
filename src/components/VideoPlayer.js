@@ -117,7 +117,8 @@ const VideoPlayer = (props) => {
             visibility: chooserStatus ? "visible" : "hidden",
           }}
         >
-          <Button onClick={handlePlaying}>
+          {/* disable play/time pick/ blur if video has not been selected */}
+          <Button onClick={handlePlaying} disabled={url ? false : true}>
             {playing ? "Pause Preview" : "Play Preview"}
           </Button>
           {/* start time picker */}
@@ -144,8 +145,9 @@ const VideoPlayer = (props) => {
                 });
               }
             }}
+            disabled={url ? false : true}
           />
-          <Button onClick={handleVisibility}>
+          <Button onClick={handleVisibility} disabled={url ? false : true}>
             {visible ? "Blur Video" : "Unblur Video"}
           </Button>
         </div>
