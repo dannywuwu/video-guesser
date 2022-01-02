@@ -54,7 +54,6 @@ const Lobby = () => {
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
-        debugger;
         if (readyUsers.length !== Object.keys(allUsers).length) {
           // console.log("socket.emit leave-room", u)
           socket.emit("leave-room", user.room, user);
@@ -103,7 +102,6 @@ const Lobby = () => {
       });
       // all players are ready, game start - need at least 2 players
       if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
-        // debugger;
         console.log("game start");
         // setCountDown(true);
         setRedirect(true);  
