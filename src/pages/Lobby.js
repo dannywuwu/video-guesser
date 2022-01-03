@@ -42,7 +42,6 @@ const Lobby = () => {
 
   // user join/leave
   useEffect(() => {
-    debugger;
     if (socket) {
       // user joins a room
       if (room.rName === "default-rName") {
@@ -59,7 +58,6 @@ const Lobby = () => {
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
-        debugger;
         // use readyUsersRef and allUserRef for comparing
         if (readyUsersRef.current.length !== Object.keys(allUsersRef.current).length) {
           // console.log("socket.emit leave-room", u)
