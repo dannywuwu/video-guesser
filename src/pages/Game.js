@@ -35,19 +35,29 @@ const Game = () => {
   const socket = useSocket();
   const { user, setUser, allUsers, setAllUsers } = useUser();
   const sortedUsers = Object.values(allUsers).sort(sortLeaderboard);
-  const sortedUsersRef = useRef(sortedUsers)
+  const sortedUsersRef = useRef(sortedUsers);
   const { room, setRoom } = useRoom();
   // the user that's choosing the video
   const chooser = room.chooser || defaultChooserModel;
 
   // phase toggle: 'search', 'guess', 'score', 'end', 'gameover'
   const phase = room.phase;
-
+  /* video settings */
   // the selected video
   const selectedVideo = room.video || defaultVideoModel;
-
+  // timestamps for play start/end
+  const [playStart, setPlayStart] = useState(0);
+  const [playEnd, setPlayEnd] = useState(videoTime);
   // the progress bar at the top
-  const [progress, setProgress] = useState({ percent: 0, intervalID: 0 });
+  const [progress, setProgress] = useState({
+    playedSeconds: 0,
+    played: 0,
+    loadedSeconds: 0,
+    loaded: 0,
+  });
+  // video buffer state
+  const [bufferStatus, setBufferStatus] = useState(false);
+
   const [winners, setWinners] = useState([]);
 
   // state for the properties to be udpated
@@ -63,18 +73,10 @@ const Game = () => {
     setRoom((prev) => ({ ...prev, chooser: newChooser }));
   };
 
-  // check if the progress is at 100 and clears the interval if so
-  useEffect(() => {
-    if (progress["percent"] >= videoTime) {
-      clearInterval(progress["intervalID"]);
-      updatePhase("score");
-    }
-  }, [progress]);
-
   const resetGame = () => {
-    // reset states 
-    socket.emit("reset-game", room.rName)
-  } 
+    // reset states
+    socket.emit("reset-game", room.rName);
+  };
 
   // on mount round 0, choose initial chooser
   useEffect(() => {
@@ -94,8 +96,8 @@ const Game = () => {
         debugger;
       } else {
         // means the game is over, so reset the game states
-        resetGame()
-        debugger;  
+        resetGame();
+        debugger;
       }
     };
   }, []);
@@ -119,7 +121,7 @@ const Game = () => {
   // update Users when they leave
   useEffect(() => {
     console.log("all users", allUsers);
-    sortedUsersRef.current = Object.values(allUsers).sort(sortLeaderboard)
+    sortedUsersRef.current = Object.values(allUsers).sort(sortLeaderboard);
     console.log("sortedUSersRef", sortedUsersRef.current);
     if (socket) {
       socket.once("display-users", (users) => {
@@ -144,7 +146,6 @@ const Game = () => {
     socket.emit("update-phase", newPhase);
   };
 
-
   // clear state for next round
   const nextRound = () => {
     // emit events TODO
@@ -154,7 +155,12 @@ const Game = () => {
     socket.emit("update-turn", room, () => {
       socket.emit("choose-chooser", room.rName);
     });
-    setProgress(0);
+    setProgress({
+      playedSeconds: 0,
+      played: 0,
+      loadedSeconds: 0,
+      loaded: 0,
+    });
     setWinners([]);
     updatePhase("search");
   };
@@ -174,8 +180,7 @@ const Game = () => {
     if (phase === "search") {
       console.log(winners, selectedVideo);
     } else if (phase === "guess") {
-      // start the video timer
-      startVideoTimer(progress, setProgress, videoTime);
+      // the chooser will start the video
     } else if (phase === "score") {
       // the 'score' phase...
     } else if (phase === "end") {
@@ -184,7 +189,6 @@ const Game = () => {
       nextRound();
     } else {
       // the 'gameover' phase
-      
     }
   }, [phase]);
 
@@ -232,91 +236,99 @@ const Game = () => {
   // redirect if socket undefined
   return socket ? (
     <div className="game-root">
-      {phase === "gameover" && (<Redirect to="/lobby" />)}
+      {phase === "gameover" && <Redirect to="/lobby" />}
       {sortedUsers.slice(0, 1)[0].points === pointCap && (
         <Countdown
           date={Date.now() + 3000}
           onComplete={() => {
             debugger;
-            updatePhase("gameover")
-
+            updatePhase("gameover");
           }}
         />
       )}
       <div className="game-progressBar">
         <Progress
-          percent={(progress["percent"] / videoTime) * 100}
+          percent={((progress.playedSeconds - playStart) / videoTime) * 100}
           showInfo={false}
         />
       </div>
-      {/* <h1>chooser is {chooser.id}</h1> */}
-      {/* <h3
-          style={{
-            visibility: checkChooser() ? "hidden" : "visible",
-          }}
-        >
-          if you are not a chooser you can see this
-        </h3> */}
-      <div className="game-mainDisplay">
-        <div className="game-leaderboard">
-          <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
+      <div
+        className="game-VideoPlayer"
+        style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
+      >
+        <div className="game-mainDisplay">
+          <div className="player-status">
+            You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}
+          </div>
+          <div
+            className="game-VideoPlayer"
+            style={{ background: "#ddd", width: "640px", margin: "0 auto" }}
+          >
+            <VideoPlayer
+              // props
+              url={selectedVideo["videoURL"]}
+              selectedPhase={phase}
+              chooserStatus={checkChooser(socket.id)}
+              socket={socket}
+              rName={room.rName}
+              progress={progress}
+              setProgress={setProgress}
+              bufferStatus={bufferStatus}
+              setBufferStatus={setBufferStatus}
+              updatePhase={updatePhase}
+              playStart={playStart}
+              setPlayStart={setPlayStart}
+              playEnd={playEnd}
+              setPlayEnd={setPlayEnd}
+              videoTime={videoTime}
+              style={{
+                visibility:
+                  checkChooser(socket.id) || phase === "score"
+                    ? "visible"
+                    : "hidden",
+                background: "red",
+              }}
+            />
+          </div>
+          <div className="game-leaderboard">
+            <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
+          </div>
         </div>
-        <div
-          className="game-VideoPlayer"
-          style={{ background: "#ddd", width: "640px", margin: "0 auto" }}
-        >
-          <VideoPlayer
-            // props
-            url={selectedVideo["videoURL"]}
-            selectedPhase={phase}
-            //
-            style={{
-              visibility:
-                checkChooser(socket.id) || phase === "score"
-                  ? "visible"
-                  : "hidden",
-              background: "red",
-            }}
-          />
+        <div className="game-guessContainer">
+          {checkChooser(socket.id) ? (
+            <SelectVideo
+              phase={phase}
+              updatePhase={updatePhase}
+              updateVideo={updateVideo}
+            />
+          ) : (
+            <Input
+              disabled={phase === "guess" ? false : true}
+              onPressEnter={(e) => updateGuess(e.target.value)}
+              defaultValue=""
+              allowClear
+            />
+          )}
         </div>
-        <div className="game-leaderboard">
-          <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
-        </div>
-      </div>
-      <div className="game-guessContainer">
-        {checkChooser(socket.id) ? (
-          <SelectVideo
+        <div className="game-allUsersContainer">
+          <UserList
+            checkChooser={checkChooser}
+            selectWinner={selectWinner}
+            users={Object.values(allUsers)}
             phase={phase}
-            updatePhase={updatePhase}
-            updateVideo={updateVideo}
+            submitSelected={submitSelected}
           />
-        ) : (
-          <Input
-            disabled={phase === "guess" ? false : true}
-            onPressEnter={(e) => updateGuess(e.target.value)}
-            defaultValue=""
-            allowClear
-          />
-        )}
-      </div>
-      <div className="game-allUsersContainer">
-        <UserList
-          checkChooser={checkChooser}
-          selectWinner={selectWinner}
-          users={Object.values(allUsers)}
-          phase={phase}
-          submitSelected={submitSelected}
-        />
-        {phase === "score" && (
-          <>
-            {winners.map((winner) => {
-              return <p>{winner.name}</p>;
-            })}
-            <Button type="primary" onClick={submitSelected}>
-              Submit
-            </Button>
-          </>
-        )}
+          {phase === "score" && (
+            <>
+              {winners.map((winner) => {
+                return <p>{winner.name}</p>;
+              })}
+              <Button type="primary" onClick={submitSelected}>
+                Submit
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   ) : (

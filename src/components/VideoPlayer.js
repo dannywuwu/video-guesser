@@ -6,19 +6,28 @@ import "../styles/videoPlayer/videoPlayer.css";
 
 // TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
-  const { url, selectedPhase, chooserStatus, socket, rName } = props;
+  const {
+    url,
+    selectedPhase,
+    chooserStatus,
+    socket,
+    rName,
+    progress,
+    setProgress,
+    bufferStatus,
+    setBufferStatus,
+    updatePhase,
+    playStart,
+    setPlayStart,
+    playEnd,
+    setPlayEnd,
+    videoTime,
+  } = props;
 
   // playing/paused
   const [playing, setPlaying] = useState(false);
   // reference to reactplayer
   const [ref, setRef] = useState(null);
-  // timestamps for play start/end
-  const [playStart, setPlayStart] = useState(0);
-  const [playEnd, setPlayEnd] = useState(20);
-  // progress obj
-  const [progress, setProgress] = useState(null);
-  // video buffer state
-  const [bufferStatus, setBufferStatus] = useState(false);
   // video length in seconds
   const [duration, setDuration] = useState(0);
   // player visibility (true for testing)
@@ -30,21 +39,24 @@ const VideoPlayer = (props) => {
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
-    // finished preview, pause and seek to playStart
+    // finished preview, pause and seek to playStart and update phase to score
     if (_progress.playedSeconds >= playEnd) {
       seek(playStart);
       setPlaying(false);
+      updatePhase("score");
     }
   };
 
   const handlePlaying = () => {
     // toggle video playing status for all during guess phase
-    if (selectedPhase === "guess") {
+    // if (selectedPhase === "guess" && socket) {
+    if (socket) {
       socket.emit("toggle-play", playing, rName);
-    } else {
-      // only toggle preview locally for other phases
-      setPlaying(!playing);
     }
+    // } else {
+    //   // only toggle preview locally for other phases
+    //   setPlaying(!playing);
+    // }
   };
 
   // set play start time to current progress time
@@ -58,7 +70,9 @@ const VideoPlayer = (props) => {
 
   const handleVisibility = () => {
     // toggle video blur
-    socket.emit("toggle-blur", !visible, rName);
+    if (socket) {
+      socket.emit("toggle-blur", visible, rName);
+    }
   };
 
   // listen to video toggle
@@ -74,6 +88,7 @@ const VideoPlayer = (props) => {
   useEffect(() => {
     if (socket) {
       socket.once("toggle-blur", (blurStatus) => {
+        console.log("now blurring to ", blurStatus);
         setVisible(blurStatus);
       });
     }
@@ -112,7 +127,8 @@ const VideoPlayer = (props) => {
             visibility: chooserStatus ? "visible" : "hidden",
           }}
         >
-          <Button onClick={handlePlaying}>
+          {/* disable play/time pick/ blur if video has not been selected */}
+          <Button onClick={handlePlaying} disabled={url ? false : true}>
             {playing ? "Pause Preview" : "Play Preview"}
           </Button>
           {/* start time picker */}
@@ -130,8 +146,8 @@ const VideoPlayer = (props) => {
                 setPlaying(true);
                 // set play start/end
                 setPlayStart(time);
-                // end playing after 20 seconds
-                setPlayEnd(time + 20);
+                // end playing after videoTime
+                setPlayEnd(time + videoTime);
               } else {
                 // notify out of bounds
                 notify({
@@ -139,8 +155,9 @@ const VideoPlayer = (props) => {
                 });
               }
             }}
+            disabled={url ? false : true}
           />
-          <Button onClick={handleVisibility}>
+          <Button onClick={handleVisibility} disabled={url ? false : true}>
             {visible ? "Blur Video" : "Unblur Video"}
           </Button>
         </div>

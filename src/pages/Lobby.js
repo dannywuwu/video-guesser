@@ -37,8 +37,8 @@ const Lobby = () => {
   const [countDown, setCountDown] = useState(false);
   const [redirect, setRedirect] = useState(false);
   // useRefs
-  const allUsersRef = useRef(allUsers)
-  const readyUsersRef = useRef(readyUsers)
+  const allUsersRef = useRef(allUsers);
+  const readyUsersRef = useRef(readyUsers);
 
   // user join/leave
   useEffect(() => {
@@ -53,15 +53,18 @@ const Lobby = () => {
           setAllUsers(users);
         });
       } else {
-        console.log("coming back from game.js")
+        console.log("coming back from game.js");
       }
 
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
-        debugger;
+        // debugger;
         // use readyUsersRef and allUserRef for comparing
-        if (readyUsersRef.current.length !== Object.keys(allUsersRef.current).length) {
+        if (
+          readyUsersRef.current.length !==
+          Object.keys(allUsersRef.current).length
+        ) {
           // console.log("socket.emit leave-room", u)
           socket.emit("leave-room", user.room, user);
           // re-render ready users
@@ -74,7 +77,7 @@ const Lobby = () => {
   // listen and render users
   useEffect(() => {
     // reassign the reference
-    allUsersRef.current = allUsers
+    allUsersRef.current = allUsers;
     if (socket) {
       socket.once("display-users", (users) => {
         setAllUsers(users);
@@ -98,11 +101,10 @@ const Lobby = () => {
     }
   }, [isReady]);
 
-
   // fetch ready players and render ready
   useEffect(() => {
     // reassign ref
-    readyUsersRef.current = readyUsers
+    readyUsersRef.current = readyUsers;
     if (socket) {
       socket.once("get-ready-players", (user, ready) => {
         if (ready) {
@@ -112,10 +114,13 @@ const Lobby = () => {
         }
       });
       // all players are ready, game start - need at least 2 players
-      if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
+      if (
+        readyUsers.length === Object.keys(allUsers).length &&
+        room.rName !== "default-rName"
+      ) {
         console.log("game start");
         // setCountDown(true);
-        setRedirect(true);  
+        setRedirect(true);
       } else {
         setCountDown(false);
       }
