@@ -125,7 +125,6 @@ io.on("connection", (socket: any) => {
       // chooser ID from [0, # users in room]
       let newChooserID;
       for (const userID in roomUsers) {
-        console.log("choose-chooser", roomUsers[userID], roomTurn);
         if (
           roomUsers[userID].position ===
           roomTurn % Object.keys(roomUsers).length
@@ -135,7 +134,6 @@ io.on("connection", (socket: any) => {
       }
       // update chooser for room
       const newChooser = getUser(users, newChooserID);
-      console.log("new chooser is " + newChooserID, newChooser);
       room.chooser = newChooser;
       io.to(rName).emit("chooser-chosen", newChooser);
     } else {
@@ -155,7 +153,6 @@ io.on("connection", (socket: any) => {
       rooms[rName].chooser!.id === clientUser.id
     ) {
       rooms[rName].turn += 1;
-      console.log("room turn", rooms[rName].turn);
       io.to(rName).emit("display-room", rooms[rName], ["turn"]);
       callBack();
     }
@@ -167,7 +164,6 @@ io.on("connection", (socket: any) => {
       clientUser.guess = guess;
       const rName = clientUser.room;
       const room = rooms[rName];
-      console.log("update-guess", room);
       io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
     } else {
       console.log("clientUser is null at update-guess");
@@ -181,7 +177,8 @@ io.on("connection", (socket: any) => {
       const room = rooms[rName];
       // this is to make sure we don't enter an infinite socket calling bullshit
       room.phase = phase;
-      console.log("update-phase", room);
+      console.log("update-phase-room-users", room.users);
+      console.log("update-phase-all-ysers", users)
       io.to(rName).emit("display-room", room, ["phase"]);
     } else {
       console.log("clientUser is null at update-phase");
@@ -193,7 +190,6 @@ io.on("connection", (socket: any) => {
     if (clientUser && clientUser.room) {
       const rName = clientUser.room;
       const room = rooms[rName];
-      console.log("update-video", room);
       // this is to make sure we don't enter an infinite socket calling bullshit
       room.video = video;
       io.to(rName).emit("display-room", room, ["video"]);
@@ -227,6 +223,27 @@ io.on("connection", (socket: any) => {
   socket.on("toggle-play", (playing: boolean, rName: string) => {
     io.to(rName).emit("toggle-play", !playing);
   });
+
+  // reset all of the game states
+  socket.on("reset-game", (rName: string) => {
+    const room = rooms[rName]
+    if (room) {
+      // reset room states
+      room.phase = "search";
+      room.turn = 0;
+      io.to(rName).emit("display-room", room, ["phase", "turn"]);
+
+      // reset the users points 
+      for (const userID in room.users) {
+        users[userID].points = 0
+      }
+      io.to(rName).emit("display-users", getUsersInRoom(rooms, rName));
+
+    } else {
+      console.log("room is null at reset-game")
+    }
+  })
+
 
   // user leave room
   socket.on("leave-room", (rName: string, user: User) => {
@@ -294,8 +311,6 @@ app.get("/get/:search", (req, res) => {
     .then((response: any) => response.json())
     .then((data: any) => {
       const { items } = data;
-      console.log(url, data);
-
       const videoListData = { items: formatVideoListData(items) };
       res.header("Content-Type", "application/json");
       res.send(JSON.stringify(videoListData, null, 4));
