@@ -107,7 +107,7 @@ const VideoPlayer = (props) => {
     <div>
       <div className="player-container">
         {/* toggle blur on player */}
-        <div className="react-player" className={`${visible ? "" : "blur"}`}>
+        <div className="react-player" style={{ background: "#ddd", }} className={`${visible ? "" : "blur"}`}>
           <ReactPlayer
             ref={setRef}
             url={url}
@@ -125,6 +125,8 @@ const VideoPlayer = (props) => {
           className="player-controls"
           style={{
             visibility: chooserStatus ? "visible" : "hidden",
+            display: "flex",
+            justifyContent: "center"
           }}
         >
           {/* disable play/time pick/ blur if video has not been selected */}

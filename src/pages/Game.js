@@ -73,9 +73,19 @@ const Game = () => {
     setRoom((prev) => ({ ...prev, chooser: newChooser }));
   };
 
+  // check if the progress is at 100 and clears the interval if so
+  useEffect(() => {
+    if (progress["percent"] >= videoTime) {
+      clearInterval(progress["intervalID"]);
+      updatePhase("score");
+    }
+  }, [progress]);
+
   const resetGame = () => {
     // reset states
-    socket.emit("reset-game", room.rName);
+    if (socket) {
+      socket.emit("reset-game", room.rName);
+    }
   };
 
   // on mount round 0, choose initial chooser
@@ -93,11 +103,9 @@ const Game = () => {
       if (socket && sortedUsersRef.current.slice(0, 1)[0].points !== pointCap) {
         // just means some dude left the game
         socket.emit("leave-room", user.room, user);
-        debugger;
       } else {
         // means the game is over, so reset the game states
         resetGame();
-        debugger;
       }
     };
   }, []);
@@ -241,7 +249,6 @@ const Game = () => {
         <Countdown
           date={Date.now() + 3000}
           onComplete={() => {
-            debugger;
             updatePhase("gameover");
           }}
         />
@@ -252,83 +259,75 @@ const Game = () => {
           showInfo={false}
         />
       </div>
-      <div
-        className="game-VideoPlayer"
-        style={{ background: "#ddd", width: "600px", margin: "0 auto" }}
-      >
-        <div className="game-mainDisplay">
-          <div className="player-status">
-            You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}
-          </div>
-          <div
-            className="game-VideoPlayer"
-            style={{ background: "#ddd", width: "640px", margin: "0 auto" }}
-          >
-            <VideoPlayer
-              // props
-              url={selectedVideo["videoURL"]}
-              selectedPhase={phase}
-              chooserStatus={checkChooser(socket.id)}
-              socket={socket}
-              rName={room.rName}
-              progress={progress}
-              setProgress={setProgress}
-              bufferStatus={bufferStatus}
-              setBufferStatus={setBufferStatus}
-              updatePhase={updatePhase}
-              playStart={playStart}
-              setPlayStart={setPlayStart}
-              playEnd={playEnd}
-              setPlayEnd={setPlayEnd}
-              videoTime={videoTime}
-              style={{
-                visibility:
-                  checkChooser(socket.id) || phase === "score"
-                    ? "visible"
-                    : "hidden",
-                background: "red",
-              }}
-            />
-          </div>
-          <div className="game-leaderboard">
-            <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
-          </div>
+      <div className="game-mainDisplay">
+        <div className="player-status">
+          You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}
         </div>
-        <div className="game-guessContainer">
-          {checkChooser(socket.id) ? (
-            <SelectVideo
-              phase={phase}
-              updatePhase={updatePhase}
-              updateVideo={updateVideo}
-            />
-          ) : (
-            <Input
-              disabled={phase === "guess" ? false : true}
-              onPressEnter={(e) => updateGuess(e.target.value)}
-              defaultValue=""
-              allowClear
-            />
-          )}
-        </div>
-        <div className="game-allUsersContainer">
-          <UserList
-            checkChooser={checkChooser}
-            selectWinner={selectWinner}
-            users={Object.values(allUsers)}
-            phase={phase}
-            submitSelected={submitSelected}
+        <div className="game-VideoPlayer" style={{ margin: "0 auto" }}>
+          <VideoPlayer
+            // props
+            url={selectedVideo["videoURL"]}
+            selectedPhase={phase}
+            chooserStatus={checkChooser(socket.id)}
+            socket={socket}
+            rName={room.rName}
+            progress={progress}
+            setProgress={setProgress}
+            bufferStatus={bufferStatus}
+            setBufferStatus={setBufferStatus}
+            updatePhase={updatePhase}
+            playStart={playStart}
+            setPlayStart={setPlayStart}
+            playEnd={playEnd}
+            setPlayEnd={setPlayEnd}
+            videoTime={videoTime}
+            style={{
+              visibility:
+                checkChooser(socket.id) || phase === "score"
+                  ? "visible"
+                  : "hidden",
+              background: "red",
+            }}
           />
-          {phase === "score" && (
-            <>
-              {winners.map((winner) => {
-                return <p>{winner.name}</p>;
-              })}
-              <Button type="primary" onClick={submitSelected}>
-                Submit
-              </Button>
-            </>
-          )}
         </div>
+        <div className="game-leaderboard">
+          <Leaderboard topUsers={sortedUsers.slice(0, 5)} />
+        </div>
+      </div>
+      <div className="game-guessContainer">
+        {checkChooser(socket.id) ? (
+          <SelectVideo
+            phase={phase}
+            updatePhase={updatePhase}
+            updateVideo={updateVideo}
+          />
+        ) : (
+          <Input
+            disabled={phase === "guess" ? false : true}
+            onPressEnter={(e) => updateGuess(e.target.value)}
+            defaultValue=""
+            allowClear
+          />
+        )}
+      </div>
+      <div className="game-allUsersContainer">
+        <UserList
+          checkChooser={checkChooser}
+          selectWinner={selectWinner}
+          users={Object.values(allUsers)}
+          phase={phase}
+          submitSelected={submitSelected}
+        />
+        {phase === "score" && (
+          <>
+            {winners.map((winner) => {
+              return <p>{winner.name}</p>;
+            })}
+            <Button type="primary" onClick={submitSelected}>
+              Submit
+            </Button>
+          </>
+        )}
       </div>
     </div>
   ) : (
