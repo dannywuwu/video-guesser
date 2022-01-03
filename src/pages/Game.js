@@ -26,8 +26,8 @@ const defaultVideoModel = {
   videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
-const videoTime = 1;
-const pointCap = 1;
+const videoTime = 10;
+const pointCap = 3;
 
 const Game = () => {
   // ******************* states and variables ********************* //
