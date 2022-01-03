@@ -53,7 +53,7 @@ const Lobby = () => {
           setAllUsers(users);
         });
       } else {
-        console.log("coming back from game.js")
+        console.log("coming back from game.js");
       }
 
       // emits leave-room when user leaves
@@ -98,7 +98,6 @@ const Lobby = () => {
     }
   }, [isReady]);
 
-
   // fetch ready players and render ready
   useEffect(() => {
     // reassign ref
@@ -115,7 +114,7 @@ const Lobby = () => {
       if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
         console.log("game start");
         // setCountDown(true);
-        setRedirect(true);  
+        setRedirect(true);
       } else {
         setCountDown(false);
       }
