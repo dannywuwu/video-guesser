@@ -6,19 +6,28 @@ import "../styles/videoPlayer/videoPlayer.css";
 
 // TODO: rename to VideoContainer
 const VideoPlayer = (props) => {
-  const { url, selectedPhase, chooserStatus, socket, rName } = props;
+  const {
+    url,
+    selectedPhase,
+    chooserStatus,
+    socket,
+    rName,
+    progress,
+    setProgress,
+    bufferStatus,
+    setBufferStatus,
+    updatePhase,
+    playStart,
+    setPlayStart,
+    playEnd,
+    setPlayEnd,
+    videoTime,
+  } = props;
 
   // playing/paused
   const [playing, setPlaying] = useState(false);
   // reference to reactplayer
   const [ref, setRef] = useState(null);
-  // timestamps for play start/end
-  const [playStart, setPlayStart] = useState(0);
-  const [playEnd, setPlayEnd] = useState(20);
-  // progress obj
-  const [progress, setProgress] = useState(null);
-  // video buffer state
-  const [bufferStatus, setBufferStatus] = useState(false);
   // video length in seconds
   const [duration, setDuration] = useState(0);
   // player visibility (true for testing)
@@ -30,10 +39,11 @@ const VideoPlayer = (props) => {
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
-    // finished preview, pause and seek to playStart
+    // finished preview, pause and seek to playStart and update phase to score
     if (_progress.playedSeconds >= playEnd) {
       seek(playStart);
       setPlaying(false);
+      updatePhase("score");
     }
   };
 
@@ -136,8 +146,8 @@ const VideoPlayer = (props) => {
                 setPlaying(true);
                 // set play start/end
                 setPlayStart(time);
-                // end playing after 20 seconds
-                setPlayEnd(time + 20);
+                // end playing after videoTime
+                setPlayEnd(time + videoTime);
               } else {
                 // notify out of bounds
                 notify({
