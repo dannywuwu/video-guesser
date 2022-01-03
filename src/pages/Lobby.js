@@ -42,7 +42,6 @@ const Lobby = () => {
 
   // user join/leave
   useEffect(() => {
-    debugger;
     if (socket) {
       // user joins a room
       if (room.rName === "default-rName") {
