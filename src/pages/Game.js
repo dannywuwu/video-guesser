@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../context/SocketProvider";
 import { useUser } from "../context/UserProvider";
 import VideoPlayer from "../components/VideoPlayer";
 import UserList from "../components/UserList";
-import { Redirect } from "react-router";
+import { Redirect, useHistory } from "react-router";
 import { Button } from "antd";
 import "../styles/game/gamePageStyles.css";
 import { Input, Progress } from "antd";
@@ -31,13 +31,12 @@ const pointCap = 1;
 
 const Game = () => {
   // ******************* states and variables ********************* //
-
   // loadinng contexts
   const socket = useSocket();
   const { user, setUser, allUsers, setAllUsers } = useUser();
   const sortedUsers = Object.values(allUsers).sort(sortLeaderboard);
+  const sortedUsersRef = useRef(sortedUsers)
   const { room, setRoom } = useRoom();
-
   // the user that's choosing the video
   const chooser = room.chooser || defaultChooserModel;
 
@@ -72,6 +71,11 @@ const Game = () => {
     }
   }, [progress]);
 
+  const resetGame = () => {
+    // reset states 
+    socket.emit("reset-game", room.rName)
+  } 
+
   // on mount round 0, choose initial chooser
   useEffect(() => {
     // send user id to choose-chooser
@@ -83,14 +87,15 @@ const Game = () => {
     return () => {
       // if socket is undefined, that means user has closed/reloaded window and so "disconnect" will remove user (since socket will be null after)
       // else, "leave-room" will remove it
-      // also, we don't want to leave-room if we're simply just returning back to the lobby\
-      if (socket && sortedUsers.slice(0, 1)[0].points !== pointCap) {
-        console.log(
-          sortedUsers.slice(0, 1)[0],
-          pointCap,
-          sortedUsers.slice(0, 1)[0].points !== pointCap
-        );
+      // also, we don't want to leave-room if we're simply just returning back to the lobby
+      if (socket && sortedUsersRef.current.slice(0, 1)[0].points !== pointCap) {
+        // just means some dude left the game
         socket.emit("leave-room", user.room, user);
+        debugger;
+      } else {
+        // means the game is over, so reset the game states
+        resetGame()
+        debugger;  
       }
     };
   }, []);
@@ -114,6 +119,8 @@ const Game = () => {
   // update Users when they leave
   useEffect(() => {
     console.log("all users", allUsers);
+    sortedUsersRef.current = Object.values(allUsers).sort(sortLeaderboard)
+    console.log("sortedUSersRef", sortedUsersRef.current);
     if (socket) {
       socket.once("display-users", (users) => {
         setAllUsers(users);
@@ -136,6 +143,7 @@ const Game = () => {
   const updatePhase = (newPhase) => {
     socket.emit("update-phase", newPhase);
   };
+
 
   // clear state for next round
   const nextRound = () => {
@@ -229,7 +237,9 @@ const Game = () => {
         <Countdown
           date={Date.now() + 3000}
           onComplete={() => {
+            debugger;
             updatePhase("gameover")
+
           }}
         />
       )}
