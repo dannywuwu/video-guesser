@@ -48,13 +48,13 @@ const Lobby = () => {
           setAllUsers(users);
         });
       } else {
-        console.log("coming back from game.js")
+        console.log("coming back from game.js");
       }
 
       // emits leave-room when user leaves
       return () => {
         // if we're not going to the game, don't remove the user from the room
-        debugger;
+        // debugger;
         if (readyUsers.length !== Object.keys(allUsers).length) {
           // console.log("socket.emit leave-room", u)
           socket.emit("leave-room", user.room, user);
@@ -90,7 +90,6 @@ const Lobby = () => {
     }
   }, [isReady]);
 
-
   // fetch ready players and render ready
   useEffect(() => {
     if (socket) {
@@ -102,11 +101,14 @@ const Lobby = () => {
         }
       });
       // all players are ready, game start - need at least 2 players
-      if (readyUsers.length === Object.keys(allUsers).length && room.rName !== "default-rName") {
+      if (
+        readyUsers.length === Object.keys(allUsers).length &&
+        room.rName !== "default-rName"
+      ) {
         // debugger;
         console.log("game start");
         // setCountDown(true);
-        setRedirect(true);  
+        setRedirect(true);
       } else {
         setCountDown(false);
       }
