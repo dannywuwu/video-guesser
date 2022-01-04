@@ -261,7 +261,8 @@ const Game = () => {
       </div>
       <div className="game-mainDisplay">
         <div className="player-status">
-          You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}
+          <p>You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}</p>
+          <p>Game Phase: {phase}</p>
         </div>
         <div className="game-VideoPlayer" style={{ margin: "0 auto" }}>
           <VideoPlayer
@@ -300,6 +301,12 @@ const Game = () => {
             phase={phase}
             updatePhase={updatePhase}
             updateVideo={updateVideo}
+            selectedVideo={selectedVideo}
+            playStart={playStart}
+            setPlayStart={setPlayStart}
+            playEnd={playEnd}
+            setPlayEnd={setPlayEnd}
+            videoTime={videoTime}
           />
         ) : (
           <Input
