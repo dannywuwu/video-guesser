@@ -1,5 +1,5 @@
-import { Button, Modal } from "antd";
 import React, { useState } from "react";
+import { Button, Modal } from "antd";
 import SearchContainer from "./SearchContainer";
 
 const SelectVideo = (props) => {
@@ -15,6 +15,7 @@ const SelectVideo = (props) => {
     videoTime,
   } = props;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [playing, setPlaying] = useState(true);
 
   const toggleSearch = () => {
     setIsSearchVisible((prev) => !prev);
@@ -22,7 +23,14 @@ const SelectVideo = (props) => {
 
   const handleCancel = () => {
     setIsSearchVisible(false);
+    setPlaying(false);
   };
+
+  const handleClose = () => {
+    setIsSearchVisible(false);
+    setPlaying(false);
+  };
+
   return (
     <div>
       <Button
@@ -36,13 +44,18 @@ const SelectVideo = (props) => {
         visible={isSearchVisible}
         width={1000}
         onCancel={handleCancel}
+        afterClose={handleClose}
+        destroyOnClose={true}
         footer={null}
       >
         <SearchContainer
+          isSearchVisible={isSearchVisible}
           setIsSearchVisible={setIsSearchVisible}
           updatePhase={updatePhase}
           updateVideo={updateVideo}
           selectedVideo={selectedVideo}
+          playing={playing}
+          setPlaying={setPlaying}
           playStart={playStart}
           setPlayStart={setPlayStart}
           playEnd={playEnd}

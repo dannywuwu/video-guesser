@@ -7,9 +7,11 @@ const SearchContainer = (props) => {
   const {
     updatePhase,
     updateVideo,
+    isSearchVisible,
     setIsSearchVisible,
-
     selectedVideo,
+    playing,
+    setPlaying,
     playStart,
     setPlayStart,
     playEnd,
@@ -17,7 +19,6 @@ const SearchContainer = (props) => {
     videoTime,
   } = props;
 
-  const [playing, setPlaying] = useState(true);
   const [progress, setProgress] = useState({
     playedSeconds: 0,
     played: 0,
@@ -64,7 +65,11 @@ const SearchContainer = (props) => {
             : ""}
         </p>
       </div>
-      <Button type="primary" onClick={handleSubmit}>
+      <Button
+        type="primary"
+        onClick={handleSubmit}
+        disabled={progress.played > 0 ? false : true}
+      >
         Submit
       </Button>
       <SearchVideo updatePhase={updatePhase} updateVideo={updateVideo} />
