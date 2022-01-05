@@ -2,8 +2,6 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-
-
 export {}; // fixes 'Cannot redeclare block-scoped let iable 'fetch'.ts(2451)' warning
 import express from "express";
 
@@ -283,6 +281,7 @@ const watchURL = "https://www.youtube.com/watch?v=";
 
 // helper to format Youtube API response
 const formatVideoListData = (data: any): Video => {
+  console.log(data)
   return data.map((video: any) => {
     let {
       snippet: {
