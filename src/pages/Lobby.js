@@ -118,8 +118,8 @@ const Lobby = () => {
         room.rName !== "default-rName"
       ) {
         console.log("game start");
-        // setCountDown(true);
-        setRedirect(true);
+        setCountDown(true);
+        // setRedirect(true);
       } else {
         setCountDown(false);
       }
