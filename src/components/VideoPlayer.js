@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import ReactPlayer from "react-player/youtube";
 import { Button, TimePicker, notification } from "antd";
 
@@ -27,20 +27,19 @@ const VideoPlayer = (props) => {
   // playing/paused
   const [playing, setPlaying] = useState(false);
   // reference to reactplayer
-  const [ref, setRef] = useState(null);
+  const playerRef = useRef(null);
   // video length in seconds
   const [duration, setDuration] = useState(0);
   // player visibility (true for testing)
   const [visible, setVisible] = useState(true);
 
+  // seek to given time with player
   const seek = (time) => {
-    ref.seekTo(time, "seconds");
+    playerRef.current.seekTo(time, "seconds");
   };
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
-    console.log(_progress);
-    console.log("play end", playEnd);
     // finished preview, pause and seek to playStart and update phase to score
     if (_progress.playedSeconds >= playEnd) {
       seek(playStart);
@@ -109,16 +108,16 @@ const VideoPlayer = (props) => {
             background: "#ddd",
             paddingTop: "56.25%",
             height: "0",
-            width: "360px",
-            position: "relative"
+            width: "40vw",
+            position: "relative",
           }}
           className={`${visible ? "" : "blur"}`}
         >
           <ReactPlayer
-            ref={setRef}
+            ref={playerRef}
             url={url}
             playing={playing}
-            progressInterval={100}
+            progressInterval={50}
             onProgress={handleProgress}
             onStart={handleStart}
             onBuffer={() => setBufferStatus(true)}
@@ -129,7 +128,6 @@ const VideoPlayer = (props) => {
             style={{
               pointerEvents: "none",
               position: "absolute",
-  
               left: "0",
               top: "0",
             }}
