@@ -14,9 +14,12 @@ const SearchContainer = (props) => {
   const {
     updatePhase,
     updateVideo,
+    isSearchVisible,
     setIsSearchVisible,
     phase,
     selectedVideo,
+    playing,
+    setPlaying,
     playStart,
     setPlayStart,
     playEnd,
@@ -24,7 +27,6 @@ const SearchContainer = (props) => {
     videoTime,
   } = props;
 
-  const [playing, setPlaying] = useState(true);
   const [progress, setProgress] = useState({
     playedSeconds: 0,
     played: 0,
