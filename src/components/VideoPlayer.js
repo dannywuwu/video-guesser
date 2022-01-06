@@ -118,6 +118,7 @@ const VideoPlayer = (props) => {
             ref={setRef}
             url={url}
             playing={playing}
+            progressInterval={100}
             onProgress={handleProgress}
             onStart={handleStart}
             onBuffer={() => setBufferStatus(true)}
