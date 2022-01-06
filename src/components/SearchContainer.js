@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import SearchVideo from "./SearchVideo";
 import ReactPlayer from "react-player";
 import { Button } from "antd";
@@ -34,6 +34,7 @@ const SearchContainer = (props) => {
     loaded: 0,
   });
   const [previewVideo, setPreviewVideo] = useState(defaultVideoModel);
+  const previewRef = useRef(null);
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
@@ -63,42 +64,50 @@ const SearchContainer = (props) => {
     return `${m}:${s}`;
   };
 
+  // scroll to video preview on video select
+  const handleScroll = () => {
+    console.log("previewref", previewRef);
+    previewRef.current.scrollIntoView();
+  };
+
   return (
     <div>
       <div>
-      <div
-        className="preview-player"
-        style={{
-          height: "0",
-          paddingTop: "56.25%",
-          position: "relative",
-          display: "flex",
-          justifyContent: "center",
-          margin: "0",
-        }}
-      >
-        <ReactPlayer
-          url={previewVideo["videoURL"]}
-          playing={playing}
-          controls={true}
-          onProgress={handleProgress}
-          height="100%"
-          width="100%"
+        <div
+          className="preview-player"
           style={{
-            position: "absolute",
-            top: "0",
-            bottom: "0",
-            margin: "auto",
-            textAlign: "center",
-            background: "#ddd",
+            height: "0",
+            paddingTop: "56.25%",
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            margin: "0",
           }}
+          ref={previewRef}
+        >
+          <ReactPlayer
+            url={previewVideo["videoURL"]}
+            playing={playing}
+            controls={true}
+            onProgress={handleProgress}
+            height="100%"
+            width="100%"
+            style={{
+              position: "absolute",
+              top: "0",
+              bottom: "0",
+              margin: "auto",
+              textAlign: "center",
+              background: "#ddd",
+            }}
+          />
+        </div>
+        <SearchVideo
+          updatePhase={updatePhase}
+          updateVideo={updateVideo}
+          setPreviewVideo={setPreviewVideo}
+          handleScroll={handleScroll}
         />
-      </div>
-      <SearchVideo
-        updatePhase={updatePhase}
-        updateVideo={updateVideo}
-        setPreviewVideo={setPreviewVideo}
-      />
       </div>
       {JSON.stringify(defaultVideoModel) !== JSON.stringify(previewVideo) && (
         <div
@@ -119,11 +128,11 @@ const SearchContainer = (props) => {
           }}
         >
           <div>
-            <p style={{color: "#949494", margin: 0,}}>Title</p>
+            <p style={{ color: "#949494", margin: 0 }}>Title</p>
             <h3>{previewVideo["title"]}</h3>
           </div>
           <div>
-            <p style={{color: "#949494", margin: 0,}}>Interval</p>
+            <p style={{ color: "#949494", margin: 0 }}>Interval</p>
             <h3>{`${toMinute(playStart)} to ${toMinute(playEnd)}`}</h3>
           </div>
           <Button type="primary" onClick={handleSubmit} size="large">

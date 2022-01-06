@@ -162,7 +162,8 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = ({ updatePhase, updateVideo, setPreviewVideo }) => {
+const SearchVideo = (props) => {
+  const { updatePhase, updateVideo, setPreviewVideo, handleScroll } = props;
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -173,12 +174,13 @@ const SearchVideo = ({ updatePhase, updateVideo, setPreviewVideo }) => {
     // setQueryResult(value.target.value);
     setSearch(value);
     // setInputDisabled(true);
-    getQuery(value, setQueryResult, setSlice)
+    getQuery(value, setQueryResult, setSlice);
   };
 
   const handleVideo = (video) => {
     // updateVideo(video);
-    setPreviewVideo(video)
+    setPreviewVideo(video);
+    handleScroll();
   };
 
   const extendSearch = () => {
@@ -187,10 +189,9 @@ const SearchVideo = ({ updatePhase, updateVideo, setPreviewVideo }) => {
     });
   };
 
-
   useEffect(() => {
-    console.log(queryResult)
-  }, [queryResult])
+    console.log(queryResult);
+  }, [queryResult]);
   return (
     <div style={{ margin: "50px" }}>
       <Search
