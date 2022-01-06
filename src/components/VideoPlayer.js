@@ -105,7 +105,13 @@ const VideoPlayer = (props) => {
         {/* toggle blur on player */}
         <div
           className="react-player"
-          style={{ background: "#ddd" }}
+          style={{
+            background: "#ddd",
+            paddingTop: "56.25%",
+            height: "0",
+            width: "360px",
+            position: "relative"
+          }}
           className={`${visible ? "" : "blur"}`}
         >
           <ReactPlayer
@@ -117,7 +123,15 @@ const VideoPlayer = (props) => {
             onBuffer={() => setBufferStatus(true)}
             onBufferEnd={() => setBufferStatus(false)}
             onDuration={handleDuration}
-            style={{ pointerEvents: "none" }}
+            height="100%"
+            width="100%"
+            style={{
+              pointerEvents: "none",
+              position: "absolute",
+  
+              left: "0",
+              top: "0",
+            }}
           />
         </div>
         {/* plpayer controls are only visible to chooser */}

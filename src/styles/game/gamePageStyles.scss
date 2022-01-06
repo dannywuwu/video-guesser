@@ -15,5 +15,18 @@
 
 .game-mainDisplay {
     display: flex;
+    justify-content: space-between;
+}
+
+.game-playerStatus {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-leaderboard {
+    width: 100%;
+    display: flex;
     justify-content: center;
 }

@@ -6,7 +6,7 @@ import Countdown from "react-countdown";
 import { Button, Card, Row, Col, Typography } from "antd";
 import { useHistory, Redirect } from "react-router";
 import "../styles/antd.css";
-
+import { CaretLeftOutlined, UserOutlined } from "@ant-design/icons";
 const { Title, Text } = Typography;
 // const { Header, Footer, Sider, Content } = Layout;
 
@@ -144,11 +144,11 @@ const Lobby = () => {
             style={{ textAlign: "center", marginBottom: "1rem" }}
             level={3}
           >
-            Room - {user.room}
+            Room: {user.room}
           </Title>
-          <Title style={{ textAlign: "center", marginBottom: "5vh" }} level={4}>
+          {/* <Title style={{ textAlign: "center", marginBottom: "5vh" }} level={4}>
             User - {user.name} {user.id}
-          </Title>
+          </Title> */}
           {Object.keys(allUsers).length !== 0 &&
             Object.keys(allUsers).map((uid, index) => {
               let type;
@@ -166,8 +166,14 @@ const Lobby = () => {
                   size="small"
                   type="primary"
                   style={{ marginTop: 0, backgroundColor: `${boxShadow}` }}
+                  bodyStyle={user.id === uid ? { fontWeight: "bold", display: "flex", alignItems: "center" } : {}}
                 >
                   <Text>{allUsers[uid].name} </Text>
+                  {user.id === uid && (
+                    <UserOutlined
+                      style={{ position: "absolute", right: "12px", fontSize: '20px' }}
+                    />
+                  )}
                 </Card>
               );
             })}

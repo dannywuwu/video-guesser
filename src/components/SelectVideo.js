@@ -28,15 +28,17 @@ const SelectVideo = (props) => {
       <Button
         onClick={toggleSearch}
         disabled={phase === "search" ? false : true}
+        type="primary"
       >
-        {" "}
-        Open Search{" "}
+        Open Search
       </Button>
       <Modal
         visible={isSearchVisible}
         width={1000}
         onCancel={handleCancel}
         footer={null}
+        style={{ color: "blue" }}
+        bodyStyle={{ color: "red", height: "80vh", overflowY: "scroll" }}
       >
         <SearchContainer
           setIsSearchVisible={setIsSearchVisible}
@@ -48,6 +50,7 @@ const SelectVideo = (props) => {
           playEnd={playEnd}
           setPlayEnd={setPlayEnd}
           videoTime={videoTime}
+          phase={phase}
         />
       </Modal>
     </div>

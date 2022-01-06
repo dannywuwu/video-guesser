@@ -145,9 +145,7 @@ const Game = () => {
     // returns info for the one vid you select
     console.log("update video");
     socket.emit("update-video", video);
-    if (phase === "search") {
-      updatePhase("guess");
-    }
+
   };
 
   const updatePhase = (newPhase) => {
@@ -260,11 +258,11 @@ const Game = () => {
         />
       </div>
       <div className="game-mainDisplay">
-        <div className="player-status">
+        <div className="game-playerStatus">
           <p>You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}</p>
           <p>Game Phase: {phase}</p>
         </div>
-        <div className="game-VideoPlayer" style={{ margin: "0 auto" }}>
+        <div className="game-VideoPlayer" style={{ margin: "0 15px" }}>
           <VideoPlayer
             // props
             url={selectedVideo["videoURL"]}

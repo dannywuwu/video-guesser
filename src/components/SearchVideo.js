@@ -162,7 +162,7 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = ({ updatePhase, updateVideo }) => {
+const SearchVideo = ({ updatePhase, updateVideo, setPreviewVideo }) => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -177,7 +177,8 @@ const SearchVideo = ({ updatePhase, updateVideo }) => {
   };
 
   const handleVideo = (video) => {
-    updateVideo(video);
+    // updateVideo(video);
+    setPreviewVideo(video)
   };
 
   const extendSearch = () => {

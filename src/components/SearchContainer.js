@@ -3,12 +3,19 @@ import SearchVideo from "./SearchVideo";
 import ReactPlayer from "react-player";
 import { Button } from "antd";
 
+const defaultVideoModel = {
+  title: "title",
+  channelTitle: "channelTitle",
+  imageURL: "",
+  videoURL: "",
+};
+
 const SearchContainer = (props) => {
   const {
     updatePhase,
     updateVideo,
     setIsSearchVisible,
-
+    phase,
     selectedVideo,
     playStart,
     setPlayStart,
@@ -24,6 +31,8 @@ const SearchContainer = (props) => {
     loadedSeconds: 0,
     loaded: 0,
   });
+  const [previewVideo, setPreviewVideo] = useState(defaultVideoModel);
+
   const handleProgress = (_progress) => {
     setProgress(_progress);
     setPlayStart(_progress.playedSeconds.toFixed());
@@ -34,6 +43,10 @@ const SearchContainer = (props) => {
     // close modal and pause video
     setIsSearchVisible(false);
     setPlaying(false);
+    if (phase === "search") {
+      updatePhase("guess");
+    }
+    updateVideo(previewVideo);
   };
 
   // returns seconds as minute string
@@ -50,24 +63,72 @@ const SearchContainer = (props) => {
 
   return (
     <div>
-      <div className="preview-player">
+      <div>
+      <div
+        className="preview-player"
+        style={{
+          height: "0",
+          paddingTop: "56.25%",
+          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+          margin: "0",
+        }}
+      >
         <ReactPlayer
-          url={selectedVideo["videoURL"]}
+          url={previewVideo["videoURL"]}
           playing={playing}
           controls={true}
           onProgress={handleProgress}
+          height="100%"
+          width="100%"
+          style={{
+            position: "absolute",
+            top: "0",
+            bottom: "0",
+            margin: "auto",
+            textAlign: "center",
+            background: "#ddd",
+          }}
         />
-        <p>
-          {/* remove decimals with toFixed */}
-          {progress.played > 0
-            ? `Play from ${toMinute(playStart)} to ${toMinute(playEnd)}`
-            : ""}
-        </p>
       </div>
-      <Button type="primary" onClick={handleSubmit}>
-        Submit
-      </Button>
-      <SearchVideo updatePhase={updatePhase} updateVideo={updateVideo} />
+      <SearchVideo
+        updatePhase={updatePhase}
+        updateVideo={updateVideo}
+        setPreviewVideo={setPreviewVideo}
+      />
+      </div>
+      {JSON.stringify(defaultVideoModel) !== JSON.stringify(previewVideo) && (
+        <div
+          className="searchContainer-footer"
+          style={{
+            position: "absolute",
+            left: "0px",
+            bottom: "0px",
+            zIndex: "10",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-around",
+            width: "100%",
+            height: "10%",
+            borderTop: "solid #ddd 1px",
+            background: "white",
+            padding: "10px 0",
+          }}
+        >
+          <div>
+            <p style={{color: "#949494", margin: 0,}}>Title</p>
+            <h3>{previewVideo["title"]}</h3>
+          </div>
+          <div>
+            <p style={{color: "#949494", margin: 0,}}>Interval</p>
+            <h3>{`${toMinute(playStart)} to ${toMinute(playEnd)}`}</h3>
+          </div>
+          <Button type="primary" onClick={handleSubmit} size="large">
+            Submit
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
