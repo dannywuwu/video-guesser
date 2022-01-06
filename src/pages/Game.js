@@ -26,8 +26,8 @@ const defaultVideoModel = {
   videoURL: "",
 };
 // config, this is gonna be a state itself in the future, so users can configure the game settings
-const videoTime = 1;
-const pointCap = 1;
+const videoTime = 10;
+const pointCap = 3;
 
 const Game = () => {
   // ******************* states and variables ********************* //
@@ -261,7 +261,8 @@ const Game = () => {
       </div>
       <div className="game-mainDisplay">
         <div className="player-status">
-          You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}
+          <p>You are {checkChooser(socket.id) ? "the Chooser" : "a Guesser"}</p>
+          <p>Game Phase: {phase}</p>
         </div>
         <div className="game-VideoPlayer" style={{ margin: "0 auto" }}>
           <VideoPlayer
@@ -300,6 +301,12 @@ const Game = () => {
             phase={phase}
             updatePhase={updatePhase}
             updateVideo={updateVideo}
+            selectedVideo={selectedVideo}
+            playStart={playStart}
+            setPlayStart={setPlayStart}
+            playEnd={playEnd}
+            setPlayEnd={setPlayEnd}
+            videoTime={videoTime}
           />
         ) : (
           <Input

@@ -39,6 +39,8 @@ const VideoPlayer = (props) => {
 
   const handleProgress = (_progress) => {
     setProgress(_progress);
+    console.log(_progress);
+    console.log("play end", playEnd);
     // finished preview, pause and seek to playStart and update phase to score
     if (_progress.playedSeconds >= playEnd) {
       seek(playStart);
@@ -49,19 +51,14 @@ const VideoPlayer = (props) => {
 
   const handlePlaying = () => {
     // toggle video playing status for all during guess phase
-    // if (selectedPhase === "guess" && socket) {
-    if (socket) {
+    if (selectedPhase === "guess" && socket) {
       socket.emit("toggle-play", playing, rName);
     }
-    // } else {
-    //   // only toggle preview locally for other phases
-    //   setPlaying(!playing);
-    // }
   };
 
   // set play start time to current progress time
   const handleStart = () => {
-    setPlayStart(progress.playedSeconds);
+    seek(playStart);
   };
 
   const handleDuration = (_duration) => {
@@ -88,7 +85,6 @@ const VideoPlayer = (props) => {
   useEffect(() => {
     if (socket) {
       socket.once("toggle-blur", (blurStatus) => {
-        console.log("now blurring to ", blurStatus);
         setVisible(blurStatus);
       });
     }
@@ -107,7 +103,11 @@ const VideoPlayer = (props) => {
     <div>
       <div className="player-container">
         {/* toggle blur on player */}
-        <div className="react-player" style={{ background: "#ddd", }} className={`${visible ? "" : "blur"}`}>
+        <div
+          className="react-player"
+          style={{ background: "#ddd" }}
+          className={`${visible ? "" : "blur"}`}
+        >
           <ReactPlayer
             ref={setRef}
             url={url}
@@ -126,39 +126,13 @@ const VideoPlayer = (props) => {
           style={{
             visibility: chooserStatus ? "visible" : "hidden",
             display: "flex",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           {/* disable play/time pick/ blur if video has not been selected */}
           <Button onClick={handlePlaying} disabled={url ? false : true}>
-            {playing ? "Pause Preview" : "Play Preview"}
+            {playing ? "Pause" : "Play"}
           </Button>
-          {/* start time picker */}
-          <TimePicker
-            format={"mm:ss"}
-            showNow={false}
-            onSelect={(value) => {
-              const date = new Date(value._d);
-              const minutes = date.getMinutes();
-              const seconds = date.getSeconds();
-              const time = minutes * 60 + seconds;
-              // seek video to selected time if within duration
-              if (time < duration) {
-                seek(time);
-                setPlaying(true);
-                // set play start/end
-                setPlayStart(time);
-                // end playing after videoTime
-                setPlayEnd(time + videoTime);
-              } else {
-                // notify out of bounds
-                notify({
-                  message: "Specified time is over video length!",
-                });
-              }
-            }}
-            disabled={url ? false : true}
-          />
           <Button onClick={handleVisibility} disabled={url ? false : true}>
             {visible ? "Blur Video" : "Unblur Video"}
           </Button>

@@ -9,15 +9,13 @@ const UserList = (props) => {
   // user.id -> selected status (bool)
   const selectedUsers = {};
 
-
-
   return (
     <>
       <div>
         <Row justify="center" gutter={[20, 16]}>
           {users.map((user) => {
             return (
-              <Col key={user.id} span={6} onClick={() => selectWinner(user)}>
+              <Col key={user.id} span={3} onClick={() => selectWinner(user)}>
                 <UserCard
                   phase={phase}
                   isChooser={checkChooser(user.id)}

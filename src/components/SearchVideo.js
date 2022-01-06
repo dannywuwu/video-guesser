@@ -36,7 +36,8 @@ const exampleQuery = [
   {
     title: "The Official Pokémon YouTube channel",
     channelTitle: "The Official Pokémon YouTube channel",
-    imgaeURL: "https://yt3.ggpht.com/bTRC_zTlnQWC3YkjUv2Sgch2Bmp1iW0RUBFgqv7KhfBgUbZUa8bX2tArMeiPPMnE--FL_aXz=s800-c-k-c0xffffffff-no-rj-mo",
+    imgaeURL:
+      "https://yt3.ggpht.com/bTRC_zTlnQWC3YkjUv2Sgch2Bmp1iW0RUBFgqv7KhfBgUbZUa8bX2tArMeiPPMnE--FL_aXz=s800-c-k-c0xffffffff-no-rj-mo",
   },
   {
     title: "The Champion 🏆 | Pokémon Evolutions Episode 1",
@@ -160,7 +161,7 @@ const exampleQuery = [
   },
 ];
 
-const SearchVideo = ({updatePhase, updateVideo, setIsSearchVisible}) => {
+const SearchVideo = ({ updatePhase, updateVideo }) => {
   const [search, setSearch] = useState("");
   const [queryResult, setQueryResult] = useState(exampleQuery);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -176,9 +177,8 @@ const SearchVideo = ({updatePhase, updateVideo, setIsSearchVisible}) => {
   };
 
   const handleVideo = (video) => {
-    setIsSearchVisible(false);
-    updateVideo(video)
-  }
+    updateVideo(video);
+  };
 
   const extendSearch = () => {
     setSlice((prev) => {
@@ -225,7 +225,9 @@ const SearchVideo = ({updatePhase, updateVideo, setIsSearchVisible}) => {
                 style={{ display: "inline-block" }}
               >
                 <Meta
-                  avatar={<Avatar size={96} shape="square" src={item.imgaeURL} />}
+                  avatar={
+                    <Avatar size={96} shape="square" src={item.imgaeURL} />
+                  }
                   description={item.title}
                   style={{
                     textAlign: "center",
