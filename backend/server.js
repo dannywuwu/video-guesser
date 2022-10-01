@@ -94,5 +94,19 @@ app.get('/get/:search', (req, res) => {
 
 // app.use(notFound)
 // app.use(handleError)
-const port = 5000
-app.listen(port, () => console.log(`started on port: ${port}`))
+
+
+/*** Build ************************************/
+// app.use(express.static(path.join(__dirname, "../build")));
+
+// // All routes other than above will go to index.html
+// app.get("*", (req, res) => {
+//     // send index.html
+//     res.sendFile(path.join(__dirname, "../build/index.html"));
+// });
+
+// // Express server listening...
+// const port = process.env.PORT || 5000;
+// app.listen(port, () => {
+//   console.log(`Listening on port ${port}...`);
+// });
